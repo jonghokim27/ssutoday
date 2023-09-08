@@ -1,0 +1,99 @@
+services:
+  redis-server:
+    image: redis
+    container_name: redis-server
+    hostname: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis-server/redis.conf:/etc/redis/redis.conf
+      - ./redis-server/data:/data
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - redis-network
+  zookeeper:
+    hostname: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-network
+    # volumes:
+    # - ./zookeeper/data:/data
+    # - ./zookeeper/datalog:/datalog
+    # - ./zookeeper/logs:/logs
+  kafka:
+    hostname: kafka
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CREATE_TOPICS: "pushMessage:1:1,requestReserve:1:1"
+    networks:
+      - kafka-network
+    # volumes:
+    #   - ./kafka/data:/var/lib/kafka/data
+    #   - ./kafka/secrets:/etc/kafka/secrets
+  python-crawler:
+    build: "./python-crawler"
+    container_name: "python-crawler"
+    restart: on-failure
+    depends_on:
+      - kafka
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB}
+      - PYTHONUNBUFFERED=1
+      - PIP_DISABLE_PIP_VERSION_CHECK=1
+      - PIP_NO_CACHE_DIR=1
+      - KAFKA_HOST=kafka:9092
+    volumes:
+      - "./python-crawler:/usr/src/app"
+    networks:
+      - kafka-network
+  push-sender:
+    build: "./push-sender"
+    container_name: "push-sender"
+    networks:
+      - kafka-network
+  spring-backend:
+    build: "./spring-backend"
+    container_name: "spring-backend"
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_HOST=kafka:9092
+      - CLIENT_KEY=${CLIENT_KEY}
+    ports:
+      - 80:80
+    networks:
+      - redis-network
+      - kafka-network
+networks:
+  kafka-network:
+    driver: bridge
+  redis-network:
+    driver: bridge

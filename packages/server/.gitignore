@@ -1,0 +1,7 @@
+__pycache__
+dump.rdb
+.env
+firebase.json
+node_modules
+test.ts
+kafka

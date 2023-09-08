@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "997341830534",
+    "project_id": "ssutoday-d1873",
+    "storage_bucket": "ssutoday-d1873.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997341830534:android:1bd9644f0d563f7a1a6007",
+        "android_client_info": {
+          "package_name": "com.ssutoday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "997341830534-koavfp58jigu5n2rberseu2ffdomiq5s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyp1KJqKWH-3hg1L4yxqL7vTisDPW5Gzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "997341830534-koavfp58jigu5n2rberseu2ffdomiq5s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "997341830534-dmue3aed8pdgi5hp08corhcbf9nul6ri.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ssutoday"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

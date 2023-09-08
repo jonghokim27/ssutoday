@@ -1,0 +1,19 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_d_216_82190)">
+<circle cx="40" cy="40" r="28" fill="white"/>
+</g>
+<path d="M27.2276 41.572H29.8316V50H31.4276V41.572H34.0176V40.27H27.2276V41.572ZM42.984 46.136C42.984 43.714 41.248 42.16 39.05 42.16C36.852 42.16 35.116 43.714 35.116 46.136C35.116 48.558 36.782 50.126 38.98 50.126C41.192 50.126 42.984 48.558 42.984 46.136ZM36.74 46.136C36.74 44.386 37.818 43.546 39.022 43.546C40.212 43.546 41.346 44.386 41.346 46.136C41.346 47.886 40.17 48.74 38.98 48.74C37.776 48.74 36.74 47.886 36.74 46.136ZM46.1577 43.42V42.286H44.5617V53.668H46.1577V48.88C46.6617 49.482 47.5717 50.126 48.8457 50.126C50.8757 50.126 52.4717 48.488 52.4717 46.108C52.4717 43.728 50.8757 42.16 48.8457 42.16C47.5857 42.16 46.6477 42.776 46.1577 43.42ZM50.8477 46.108C50.8477 47.774 49.6997 48.74 48.4957 48.74C47.3057 48.74 46.1577 47.802 46.1577 46.136C46.1577 44.484 47.3057 43.546 48.4957 43.546C49.6997 43.546 50.8477 44.442 50.8477 46.108Z" fill="#BEBEBE"/>
+<path d="M32.5 32.5001L40 25.0001L47.5 32.5001" stroke="#BEBEBE" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<filter id="filter0_d_216_82190" x="0" y="0" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="6"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.6 0 0 0 0 0.6 0 0 0 0 0.6 0 0 0 0.12 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_216_82190"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_216_82190" result="shape"/>
+</filter>
+</defs>
+</svg>
