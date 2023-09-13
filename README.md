@@ -15,6 +15,10 @@
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
   </a>
   <img src="https://img.shields.io/badge/platforms-android%20|%20ios%20-lightgrey.svg"/>
+</p>
+
+<p align="center">
+    Full description of SSUtoday can be found <a href="https://github.com/jonghokim27/ssutoday/blob/main/project.pdf">here.</a>
 </p><br/>
 
 ## 📖 Documentation
