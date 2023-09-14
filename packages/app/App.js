@@ -54,7 +54,9 @@ const App = () => {
     if (
       navigationRef.current.canGoBack() &&
       navigationRef.current.getCurrentRoute().name != 'WelcomeScreen' &&
-      navigationRef.current.getCurrentRoute().name != 'NoticeScreen'
+      navigationRef.current.getCurrentRoute().name != 'NoticeScreen' &&
+      navigationRef.current.getCurrentRoute().name != 'ReserveScreen' &&
+      navigationRef.current.getCurrentRoute().name != 'MyScreen'
     ) {
       navigationRef.current.goBack();
       return true;

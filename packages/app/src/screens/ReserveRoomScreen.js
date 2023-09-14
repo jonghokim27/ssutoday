@@ -60,10 +60,12 @@ class ReserveRoomScreen extends Component {
     this.openSwal = this.openSwal.bind(this);
     this.setStartBlock = this.setStartBlock.bind(this);
     this.setEndBlock = this.setEndBlock.bind(this);
+    this.showResvInfoModal = this.showResvInfoModal.bind(this);
   }
 
   async componentDidMount() {
     await this.loadRoom();
+
   }
 
   async setDate(val) {
@@ -379,6 +381,48 @@ class ReserveRoomScreen extends Component {
     );
   }
 
+  showResvInfoModal(reserve, roomName){
+    let startTime = reserve.startBlock * 30;
+      let startHour = Math.floor(startTime / 60);
+      let startMin = startTime % 60;
+      let endTime = (reserve.endBlock + 1) * 30;
+      let endHour = Math.floor(endTime / 60);
+      let endMin = endTime % 60;
+
+      let selectedTime =
+          (startHour < 10 ? '0' : '') +
+          startHour +
+          ':' +
+          (startMin < 10 ? '0' : '') +
+          startMin +
+          ' ~ ' +
+          (endHour < 10 ? '0' : '') +
+          endHour +
+          ':' +
+          (endMin < 10 ? '0' : '') +
+          endMin +
+          '';
+      
+        if(reserve.endBlock - reserve.startBlock == 1)
+          selectedTime += " (1시간)";
+        else
+          selectedTime += " (30분)";
+
+    let reportLink = "https://docs.google.com/forms/d/e/1FAIpQLSeCYo0oiuoK-3KNzKFnFLPFP43Bp4fRZq7ulTmxgoMUWGWz8g/viewform?usp=pp_url";
+    reportLink += "&entry.284506795=" + encodeURIComponent(roomName).replace("%20", "+");
+    reportLink += "&entry.46856824=" + encodeURIComponent((moment(this.state.date).format('YYYY년 M월 D일') +
+    '(' +
+    dayOfWeekHan(this.state.date.getDay()) +
+    ')')).replace("%20", "+");
+    reportLink += "&entry.573216846=" + encodeURIComponent(selectedTime).replace("%20","+");
+    this.qswal.show("info", "예약 정보", "시설명: " + roomName + "\n날짜: " + moment(this.state.date).format('YYYY년 M월 D일') +
+    '(' +
+    dayOfWeekHan(this.state.date.getDay()) +
+    ')' + "\n시간: "+ selectedTime +"\n예약자: " + reserve.studentInfo, "닫기", () => this.qswal.hide(), "신고하기", () => {this.qswal.hide(); this.navigation.push("ReserveReportScreen", {
+      url: reportLink
+    })});
+  }
+
   render() {
     let tags = this.state.room.tags.split(',');
 
@@ -502,6 +546,9 @@ class ReserveRoomScreen extends Component {
               reserves={this.state.room.reserves}
               setStartBlock={this.setStartBlock}
               setEndBlock={this.setEndBlock}
+              roomName={this.state.room.name}
+              navigation={this.navigation}
+              showResvInfoModal={this.showResvInfoModal}
             />
           </View>
 
@@ -542,11 +589,8 @@ class ReserveRoomScreen extends Component {
                 <View style={[styles.selectedLeftView]}>
                   <View style={{flexDirection: 'row'}}>
                     <View style={{justifyContent: 'center'}}>
-                      <Exclamation />
-                    </View>
-                    <View style={{justifyContent: 'center', marginLeft: 4}}>
-                      <Text style={[styles.selectedText, {color: '#F85050'}]}>
-                        이용 규칙
+                      <Text style={[styles.selectedText, {color: '#F85050', fontSize: 17}]}>
+                        스터디룸 이용 및 예약 정책
                       </Text>
                     </View>
                   </View>
@@ -554,64 +598,63 @@ class ReserveRoomScreen extends Component {
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 스터디룸 이용 인원은 최소 3명입니다.
+                      🧑🏼‍🤝‍🧑🏼 스터디룸 이용 인원은 최소 3명입니다.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 스터디룸을 타 학부 학생과 함께 이용하는 행위는 금지되어
+                      💻 스터디룸을 타 학부 학생과 함께 이용하는 행위는 금지되어
                       있습니다.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 예약 취소는 이용 시작 전에만 가능합니다.
+                      ⏰ 예약 취소는 이용 시작 전에만 가능합니다.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 예약한 시간에 스터디룸 이용이 불가능하다면, 다른
-                      이용자를 위해 이용 시작 전에 예약을 취소해주세요.
+                      ✖️ 예약한 시간에 스터디룸 이용이 불가능하다면, 이용 시작 전에 예약을 취소해주세요.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 다음 이용자를 위해 스터디룸 이용이 종료되기 5분 전부터
-                      자리를 정리하고 퇴실해주세요.
+                      ⌛ 스터디룸 이용이 종료되기 5분 전부터
+                      자리를 정리하고 퇴실을 준비해주세요.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 예약자 본인은 예약하신 시간에 스터디룸에 재실해야
+                      😆 예약자 본인은 예약하신 시간에 스터디룸에 재실해야
                       합니다.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 이용 규칙을 지키지 않으실 경우, 추후 스터디룸 예약 시
+                      ❗이용 규칙을 지키지 않으실 경우, 예약이 취소될 수 있으며 추후 스터디룸 예약 시
                       불이익이 있을 수 있습니다.
                     </Text>
                     <Text
                       style={[
                         styles.selectedTitleText,
-                        {fontSize: 14, fontFamily: 'Pretendard-Bold'},
+                        {fontSize: 14, fontFamily: 'Pretendard-Medium'},
                       ]}>
-                      ● 예약을 진행하는 것은 위 이용 규칙의 모든 내용에
-                      동의한다는 것으로 간주합니다.
+                      ✅ 예약을 진행하는 것은 위 이용 규칙의 모든 내용에
+                      동의하는 것으로 간주합니다.
                     </Text>
                   </View>
                 </View>
@@ -620,7 +663,7 @@ class ReserveRoomScreen extends Component {
               <TouchableOpacity
                 style={styles.reserveView}
                 onPress={() => this.reserveAsk()}>
-                <Text style={styles.reserveText}>에약하기</Text>
+                <Text style={styles.reserveText}>예약하기</Text>
               </TouchableOpacity>
             </View>
           )}

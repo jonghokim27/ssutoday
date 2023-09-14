@@ -33,7 +33,7 @@ class TermsScreen extends Component {
           </View>
           <WebView
             source={{
-              uri: 'https://sulky-growth-977.notion.site/a94bbf04a93f4f3c9a1282b0e4e6305e?pvs=4',
+              uri: 'https://r2.ssu.today/termsandprivacy.html',
             }}
             startInLoadingState={true}
             renderLoading={() => <Loading init={true} />}

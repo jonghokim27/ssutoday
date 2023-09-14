@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     color: '#5E5E5E',
     marginTop: 10,
     fontSize: 17,
-    fontFamily: 'Pretendard-Light',
+    fontFamily: 'Pretendard-Regular',
     textAlign: 'center',
   },
   divider: {
