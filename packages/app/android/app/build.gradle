@@ -143,8 +143,8 @@ android {
         applicationId "com.ssutoday"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5009
-        versionName "2.0.0"
+        versionCode 5015
+        versionName "2.1.2"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {

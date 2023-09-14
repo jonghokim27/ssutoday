@@ -3,6 +3,7 @@ import {View, StyleSheet, Animated, Text, TouchableOpacity} from 'react-native';
 import Error from '../../assets/svg/error.svg';
 import Success from '../../assets/svg/success.svg';
 import Warning from '../../assets/svg/warning.svg';
+import LottieView from 'lottie-react-native';
 
 class QSwal extends Component {
   constructor(props) {
@@ -102,9 +103,23 @@ class QSwal extends Component {
                 <TouchableOpacity
                   style={styles.buttonView}
                   onPress={this.state.onPressCancel}>
-                  <Text style={styles.buttonText}>
+                    <View style={{flexDirection: "row"}}>
+                      {this.state.cancelButtonText == "신고하기" && <View style={{justifyContent: "center"}}>
+                      <LottieView
+                    style={{height: 30, width: 30, marginBottom: 3}}
+                    speed={2}
+                    source={require('../../assets/lottie/animation_lmedy4nz.json')}
+                    autoPlay
+                    loop
+                    ref={instance => (this.lottie = instance)}
+                  />
+                      </View>}
+                      <View style={{justifyContent: "center"}}>
+                      <Text style={styles.buttonText}>
                     {this.state.cancelButtonText}
                   </Text>
+                      </View>
+                    </View>
                 </TouchableOpacity>
                 <View style={styles.buttonDivider} />
                 <TouchableOpacity
@@ -163,7 +178,7 @@ const styles = StyleSheet.create({
     color: '#5E5E5E',
     marginTop: 10,
     fontSize: 17,
-    fontFamily: 'Pretendard-Light',
+    fontFamily: 'Pretendard-Regular',
     textAlign: 'center',
   },
   divider: {

@@ -8,6 +8,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 
 import Header from '../components/Header';
@@ -18,7 +19,6 @@ import QSwal from '../components/QSwal';
 import Down from '../../assets/svg/down.svg';
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
-import WheelPicker from 'react-native-wheely';
 import Refresh from '../../assets/svg/refresh.svg';
 import UserSmall from '../../assets/svg/user-small.svg';
 import LocationSmall from '../../assets/svg/location-small.svg';
@@ -33,6 +33,7 @@ import moment from 'moment';
 import FastImage from 'react-native-fast-image';
 import Right from '../../assets/svg/right.svg';
 import List from '../../assets/svg/list.svg';
+import { generateToken } from '../apis/sso';
 
 class ReserveScreen extends Component {
   constructor(props) {
@@ -50,11 +51,11 @@ class ReserveScreen extends Component {
     this.childScrollEvent = this.childScrollEvent.bind(this);
     this.childGetScrollIndex = this.childGetScrollIndex.bind(this);
     this.childSetScrollIndex = this.childSetScrollIndex.bind(this);
+    this.showResvInfoModal = this.showResvInfoModal.bind(this);
   }
 
   async componentDidMount() {
     await this.loadRoomList();
-
     this.willFocusSubscription = this.navigation.addListener('focus', () => {
       this.loadRoomList();
     });
@@ -133,6 +134,92 @@ class ReserveScreen extends Component {
     }
   }
 
+  showResvInfoModal(reserve, roomName){
+    let startTime = reserve.startBlock * 30;
+      let startHour = Math.floor(startTime / 60);
+      let startMin = startTime % 60;
+      let endTime = (reserve.endBlock + 1) * 30;
+      let endHour = Math.floor(endTime / 60);
+      let endMin = endTime % 60;
+
+      let selectedTime =
+          (startHour < 10 ? '0' : '') +
+          startHour +
+          ':' +
+          (startMin < 10 ? '0' : '') +
+          startMin +
+          ' ~ ' +
+          (endHour < 10 ? '0' : '') +
+          endHour +
+          ':' +
+          (endMin < 10 ? '0' : '') +
+          endMin +
+          '';
+      
+        if(reserve.endBlock - reserve.startBlock == 1)
+          selectedTime += " (1시간)";
+        else
+          selectedTime += " (30분)";
+
+    let reportLink = "https://docs.google.com/forms/d/e/1FAIpQLSeCYo0oiuoK-3KNzKFnFLPFP43Bp4fRZq7ulTmxgoMUWGWz8g/viewform?usp=pp_url";
+    reportLink += "&entry.284506795=" + encodeURIComponent(roomName).replace("%20", "+");
+    reportLink += "&entry.46856824=" + encodeURIComponent((moment(this.state.date).format('YYYY년 M월 D일') +
+    '(' +
+    dayOfWeekHan(this.state.date.getDay()) +
+    ')')).replace("%20", "+");
+    reportLink += "&entry.573216846=" + encodeURIComponent(selectedTime).replace("%20","+");
+    this.qswal.show("info", "예약 정보", "시설명: " + roomName + "\n날짜: " + moment(this.state.date).format('YYYY년 M월 D일') +
+    '(' +
+    dayOfWeekHan(this.state.date.getDay()) +
+    ')' + "\n시간: "+ selectedTime +"\n예약자: " + reserve.studentInfo, "닫기", () => this.qswal.hide(), "신고하기", () => {this.qswal.hide(); this.navigation.push("ReserveReportScreen", {
+      url: reportLink
+    })});
+  }
+
+  async loadLocker(){
+    this.setState({
+      typeModalOpen: false
+    });
+    this.loading.show();
+
+    let generateTokenRes = await generateToken("itlocker");
+    if (generateTokenRes.statusCode == 'SSU0000') {
+      this.loading.hide();
+      this.swal.show(
+        'error',
+        '서버 연결 실패',
+        '서버에 연결할 수 없어요.\n잠시 후 다시 시도해 주세요.',
+        '확인',
+        async () => {
+          this.swal.hide();
+        },
+      );
+      return;
+    } else if (generateTokenRes.statusCode == 'SSU2150') {
+      this.loading.hide();
+      let ssoToken = generateTokenRes.data.ssoToken;
+      let callback = generateTokenRes.data.callbackUrl + ssoToken;
+      this.navigation.push("ReserveLockerScreen", {
+        url: callback
+      });
+      return;
+    } else {
+      this.loading.hide();
+      this.swal.show(
+        'error',
+        '서버 연결 실패',
+        '알 수 없는 오류가 발생했어요.\n잠시 후 다시 시도해 주세요.\n\n오류 코드: ' +
+        generateTokenRes.statusCode,
+        '확인',
+        async () => {
+          this.swal.hide();
+        },
+      );
+      return;
+    }
+
+  }
+
   render() {
     return (
       <View style={styles.mainView}>
@@ -147,7 +234,7 @@ class ReserveScreen extends Component {
             <Text style={styles.modalTitle}>예약할 시설을 선택하세요</Text>
             <View style={{marginTop: 30}}>
               <TouchableOpacity
-                style={{flexDirection: 'row'}}
+                style={{flexDirection: 'row', marginBottom: 20}}
                 onPress={() => this.setState({typeModalOpen: false})}>
                 <View style={{flex: 1}}>
                   <View style={{flexDirection: 'column'}}>
@@ -157,6 +244,21 @@ class ReserveScreen extends Component {
                 </View>
                 <View style={{justifyContent: 'center'}}>
                   <Text style={styles.modalItemSubText}>선택됨</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{flexDirection: 'row'}}
+                onPress={() => {
+                  this.loadLocker();
+                }}>
+                <View style={{flex: 1}}>
+                  <View style={{flexDirection: 'column'}}>
+                    <Text style={styles.modalItemTitle}>사물함</Text>
+                    <Text style={styles.modalItemText}>정보과학관 B1-5층</Text>
+                  </View>
+                </View>
+                <View style={{justifyContent: 'center'}}>
+                  {/* <Text style={styles.modalItemSubText}>선택됨</Text> */}
                 </View>
               </TouchableOpacity>
             </View>
@@ -283,6 +385,9 @@ class ReserveScreen extends Component {
                       childGetScrollIndex={this.childGetScrollIndex}
                       childSetScrollIndex={this.childSetScrollIndex}
                       reserves={item.reserves}
+                      roomName={item.name}
+                      navigation={this.navigation}
+                      showResvInfoModal={this.showResvInfoModal}
                     />
                   </View>
                 </View>

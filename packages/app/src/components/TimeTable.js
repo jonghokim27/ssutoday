@@ -1,6 +1,6 @@
 import React from 'react';
 import {Component} from 'react';
-import {View, StyleSheet, ScrollView, Text, FlatList} from 'react-native';
+import {View, StyleSheet, ScrollView, Text, FlatList, TouchableOpacity} from 'react-native';
 import TimeBlock30 from '../../assets/svg/timeblock30.svg';
 import TimeBlock60 from '../../assets/svg/timeblock60.svg';
 import TimeBlock30My from '../../assets/svg/timeblock30my.svg';
@@ -98,29 +98,7 @@ class TimeTable extends Component {
               );
             })}
 
-            {this.props.reserves.map((item, index) => {
-              return (
-                <View
-                  key={index}
-                  style={[
-                    styles.redBox,
-                    {left: 30 + (item.startBlock - 12) * 30 + 1},
-                  ]}>
-                  {item.endBlock - item.startBlock == 0 && !item.isMine && (
-                    <TimeBlock30 />
-                  )}
-                  {item.endBlock - item.startBlock == 1 && !item.isMine && (
-                    <TimeBlock60 />
-                  )}
-                  {item.endBlock - item.startBlock == 0 && item.isMine && (
-                    <TimeBlock30My />
-                  )}
-                  {item.endBlock - item.startBlock == 1 && item.isMine && (
-                    <TimeBlock60My />
-                  )}
-                </View>
-              );
-            })}
+            
 
             <View
               style={[
@@ -138,9 +116,50 @@ class TimeTable extends Component {
               ]}
             />
 
+{this.props.reserves.map((item, index) => {
+      let opacity = 1;
+      if(this.props.today){
+        opacity = (item.endBlock + 1 - 12) * 30 < ((new Date().getHours() - 6) * 60 +
+        new Date().getMinutes()) ? 0.5 : 1;
+      }else if(this.props.after){
+        opacity = 1;
+      }else{
+        opacity = 0.5;
+      }
+
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    if(item.isMine){
+                      this.navigation.push("ReserveListScreen");
+                    }else{
+                      this.props.showResvInfoModal(item, this.props.roomName);
+                    }
+                  }}
+                  style={[
+                    styles.redBox,
+                    {left: 30 + (item.startBlock - 12) * 30 + 1},
+                  ]}>
+                  {item.endBlock - item.startBlock == 0 && !item.isMine && (
+                    <TimeBlock30 style={{opacity: opacity}}/>
+                  )}
+                  {item.endBlock - item.startBlock == 1 && !item.isMine && (
+                    <TimeBlock60 style={{opacity: opacity}} />
+                  )}
+                  {item.endBlock - item.startBlock == 0 && item.isMine && (
+                    <TimeBlock30My style={{opacity: opacity}}/>
+                  )}
+                  {item.endBlock - item.startBlock == 1 && item.isMine && (
+                    <TimeBlock60My style={{opacity: opacity}}/>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+
             {this.props.today &&
               new Date().getHours() >= 6 &&
-              new Date().getHours() <= 22 && (
+              new Date().getHours() <= 21 && (
                 <View
                   style={[
                     styles.barTopNow,
@@ -156,7 +175,7 @@ class TimeTable extends Component {
               )}
             {this.props.today &&
               new Date().getHours() >= 6 &&
-              new Date().getHours() <= 22 && (
+              new Date().getHours() <= 21 && (
                 <View
                   style={[
                     styles.barNow,
