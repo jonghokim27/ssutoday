@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'kr.ac.ssu'
-version = '0.0.1-SNAPSHOT'
+version = '2.1.0-BETA'
 
 java {
 	sourceCompatibility = '17'

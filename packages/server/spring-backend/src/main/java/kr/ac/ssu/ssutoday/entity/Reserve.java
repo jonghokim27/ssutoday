@@ -47,6 +47,9 @@ public class Reserve {
     @Column(name = "deletedAt", nullable = true)
     private Timestamp deletedAt;
     @ManyToOne
+    @JoinColumn(name = "StudentId", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    private Student studentByStudentId;
+    @ManyToOne
     @JoinColumn(name = "roomNo", referencedColumnName = "no", nullable = false, insertable = false, updatable = false)
     private Room roomByRoomNo;
 }

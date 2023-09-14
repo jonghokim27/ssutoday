@@ -12,6 +12,7 @@ import kr.ac.ssu.ssutoday.exception.ConfigDisabledException;
 import kr.ac.ssu.ssutoday.provider.KafkaProvider;
 import kr.ac.ssu.ssutoday.repository.*;
 import kr.ac.ssu.ssutoday.service.dto.*;
+import kr.ac.ssu.ssutoday.util.MaskUtil;
 import kr.ac.ssu.ssutoday.vo.PushMessageVo;
 import kr.ac.ssu.ssutoday.vo.ReserveVo;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class ReserveServiceImpl implements ReserveService {
     private final ConfigRepository configRepository;
     private final DeviceRepository deviceRepository;
     private final KafkaProvider kafkaProvider;
+    private final MaskUtil maskUtil;
     private final String RESERVE_KAFKA_TOPIC = "requestReserve";
 
     /**
@@ -147,7 +149,11 @@ public class ReserveServiceImpl implements ReserveService {
 
         List<ReserveVo> reserveVoList = new ArrayList<>();
         for(Reserve reserve : reserveList){
+            String studentInfo = maskUtil.maskName(reserve.getStudentByStudentId().getName())
+                    + " (" + maskUtil.maskStudentId(reserve.getStudentByStudentId().getId()) + ")";
+
             ReserveVo reserveVo = ReserveVo.builder()
+                    .studentInfo(studentInfo)
                     .startBlock(reserve.getStartBlock())
                     .endBlock(reserve.getEndBlock())
                     .isMine(roomReserveListParamDto.getStudentId().intValue() == reserve.getStudentId().intValue())
