@@ -103,23 +103,25 @@ class QSwal extends Component {
                 <TouchableOpacity
                   style={styles.buttonView}
                   onPress={this.state.onPressCancel}>
-                    <View style={{flexDirection: "row"}}>
-                      {this.state.cancelButtonText == "신고하기" && <View style={{justifyContent: "center"}}>
-                      <LottieView
-                    style={{height: 30, width: 30, marginBottom: 3}}
-                    speed={2}
-                    source={require('../../assets/lottie/animation_lmedy4nz.json')}
-                    autoPlay
-                    loop
-                    ref={instance => (this.lottie = instance)}
-                  />
-                      </View>}
-                      <View style={{justifyContent: "center"}}>
-                      <Text style={styles.buttonText}>
-                    {this.state.cancelButtonText}
-                  </Text>
+                  <View style={{flexDirection: 'row'}}>
+                    {this.state.cancelButtonText == '신고하기' && (
+                      <View style={{justifyContent: 'center'}}>
+                        <LottieView
+                          style={{height: 30, width: 30, marginBottom: 3}}
+                          speed={2}
+                          source={require('../../assets/lottie/animation_lmedy4nz.json')}
+                          autoPlay
+                          loop
+                          ref={instance => (this.lottie = instance)}
+                        />
                       </View>
+                    )}
+                    <View style={{justifyContent: 'center'}}>
+                      <Text style={styles.buttonText}>
+                        {this.state.cancelButtonText}
+                      </Text>
                     </View>
+                  </View>
                 </TouchableOpacity>
                 <View style={styles.buttonDivider} />
                 <TouchableOpacity

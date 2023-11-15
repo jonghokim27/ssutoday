@@ -5,8 +5,8 @@ import BottomSafe from './BottomSafe';
 import {Shadow} from 'react-native-shadow-2';
 import HomeOn from '../../assets/svg/home_on.svg';
 import HomeOff from '../../assets/svg/home_off.svg';
-import DeskOn from '../../assets/svg/desk_on.svg';
-import DeskOff from '../../assets/svg/desk_off.svg';
+import BookOn from '../../assets/svg/book_on.svg';
+import BookOff from '../../assets/svg/book_off.svg';
 import MyOn from '../../assets/svg/my_on.svg';
 import MyOff from '../../assets/svg/my_off.svg';
 import BellOff from '../../assets/svg/bell_off.svg';
@@ -30,7 +30,7 @@ class Footer extends Component {
           containerStyle={styles.footerView}
           style={styles.shadowView}
           sides={{top: true, bottom: false}}
-          distance={0.2}>
+          distance={1}>
           <View style={styles.footerInnerView}>
             <TouchableOpacity
               style={styles.footerItemView}
@@ -39,6 +39,15 @@ class Footer extends Component {
               {this.state.menu != 1 && <HomeOff height={32} width={32} />}
               <Text style={this.state.menu == 1 ? styles.text : styles.textOff}>
                 홈
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.footerItemView}
+              onPress={() => this.navigation.navigate('LMSNavigator')}>
+              {this.state.menu == 4 && <BookOn height={32} width={32} />}
+              {this.state.menu != 4 && <BookOff height={32} width={32} />}
+              <Text style={this.state.menu == 4 ? styles.text : styles.textOff}>
+                LMS
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -73,11 +82,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   footerView: {
-    paddingLeft: '5%',
-    paddingRight: '5%',
+    paddingLeft: '3%',
+    paddingRight: '3%',
     paddingTop: 6,
     paddingBottom: 6,
     height: 65,
+    backgroundColor: 'white',
     width: '100%',
   },
   footerInnerView: {
@@ -86,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   footerItemView: {
-    width: '33.3%',
+    width: '25%',
     height: '100%',
     // borderWidth: 1,
     justifyContent: 'center',

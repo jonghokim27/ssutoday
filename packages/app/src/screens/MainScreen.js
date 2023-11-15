@@ -8,6 +8,7 @@ import {
   Linking,
   Platform,
   AppState,
+  Alert,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import size from '../constants/size';
@@ -22,6 +23,7 @@ import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid} from 'react-native';
 import {register} from '../apis/device';
 import notifee, {AndroidImportance} from '@notifee/react-native';
+import CodePush from 'react-native-code-push';
 
 class MainScreen extends Component {
   constructor(props) {
@@ -95,10 +97,7 @@ class MainScreen extends Component {
         },
       );
       return;
-    } else if (checkVersionRes.statusCode == 'SSU2070') {
-      await this.checkUser();
-      return;
-    } else {
+    } else if (checkVersionRes.statusCode != 'SSU2070') {
       this.loading.hide();
       this.swal.show(
         'error',
@@ -113,6 +112,30 @@ class MainScreen extends Component {
       );
       return;
     }
+
+    let update;
+    try{
+      update = await CodePush.checkForUpdate();
+    } catch(e){
+      await this.checkUser();
+      return;
+    }
+
+   	if (update) {
+      this.loading.message("새로운 업데이트가 발견되었어요.");
+
+      let newPackage = await update.download((progress) => {
+        this.loading.message("업데이트를 다운로드하고 있어요.\n잠시만 기다려주세요.\n" + Math.floor(progress.receivedBytes / 1024) + "/" + Math.floor(progress.totalBytes / 1024) + "KB");
+      });
+      
+      this.loading.message("업데이트를 적용하고 있어요.");
+      await newPackage.install();
+      await CodePush.notifyAppReady();
+      await CodePush.restartApp();
+      return;
+   	}
+
+    await this.checkUser();
   }
 
   async checkUser() {

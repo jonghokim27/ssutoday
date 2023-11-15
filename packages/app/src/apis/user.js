@@ -19,4 +19,8 @@ const logout = async () => {
   return await post('student/logout', {}, true);
 };
 
-export {profile, login, logout};
+const updateXnApiToken = async (xnApiToken) => {
+  return await post('student/updateXnApiToken', {xnApiToken: xnApiToken}, true);
+};
+
+export {profile, login, logout, updateXnApiToken};

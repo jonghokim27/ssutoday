@@ -73,7 +73,7 @@ class LoginScreen extends Component {
         this.swal.show(
           'warning',
           '인증 실패',
-          '컴퓨터학부, 소프트웨어학부,\n글로벌미디어학부만 서비스 이용이\n가능해요.',
+          '지원하지 않는 학과(부)에요.',
           '확인',
           async () => {
             this.navigation.goBack();
@@ -146,6 +146,7 @@ class LoginScreen extends Component {
           ref={ref => (this.webView = ref)}
           style={styles.webView}
           startInLoadingState={true}
+          sharedCookiesEnabled={true}
           onLoadStart={async e =>
             await this.onLoadStartHandler(e.nativeEvent.url)
           }

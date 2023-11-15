@@ -131,7 +131,7 @@ class NoticeWebViewScreen extends Component {
                     this.content +
                     '\n\n자세히 보기: ' +
                     decodeURIComponent(this.state.url) +
-                    '\n\n해당 게시글은 슈투데이에서 공유되었습니다.',
+                    '\n\n해당 게시글은 슈투데이에서 공유되었어요.',
                   // url: "ssutoday://notice/" + this.idx,
                   title: this.title,
                 },

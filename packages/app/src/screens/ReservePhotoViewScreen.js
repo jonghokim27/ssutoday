@@ -6,52 +6,66 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Platform,
-  Share,
-  AppState,
 } from 'react-native';
-import size from '../constants/size';
-import WebView from 'react-native-webview';
-import Loading from '../components/Loading';
-import Back from '../../assets/svg/back.svg';
-import ShareIcon from '../../assets/svg/share.svg';
-import Swal from '../components/Swal';
 
-class ReserveReportScreen extends Component {
+import Loading from '../components/Loading';
+import Swal from '../components/Swal';
+import QSwal from '../components/QSwal';
+
+Text.defaultProps = Text.defaultProps || {};
+Text.defaultProps.allowFontScaling = false;
+
+import size from '../constants/size';
+import Back from '../../assets/svg/back.svg';
+import { ImageZoom } from '@likashefqet/react-native-image-zoom';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+class ReservePhotoViewScreen extends Component {
   constructor(props) {
     super(props);
-    this.props = props;
     this.navigation = props.navigation;
     this.state = {
       url: props.route.params.url,
+      width: 0,
+      height: 0
     };
   }
 
-  componentWillUnmount() {}
-
-  async componentDidMount() {}
+  async componentDidMount() {
+    await Image.getSizeWithHeaders(this.state.url, {}, 
+      (width, height) => {
+          this.setState({
+            width: width,
+            height: height
+          })
+      });
+  }
 
   render() {
     return (
       <View style={styles.mainView}>
+        <Loading init={false} ref={ref => (this.loading = ref)} />
         <Swal ref={ref => (this.swal = ref)} />
+        <QSwal ref={ref => (this.qswal = ref)} />
+
         <View style={styles.headerView}>
           <TouchableOpacity
             style={styles.backView}
             onPress={() => this.navigation.goBack()}>
             <Back width={24} height={24} />
           </TouchableOpacity>
-          <Text style={styles.titleText}>신고하기</Text>
+          <Text style={styles.titleText}>인증샷 보기</Text>
         </View>
-        <WebView
-          ref={ref => (this.webView = ref)}
-          style={styles.webView}
-          startInLoadingState={true}
-          renderLoading={() => <Loading init={true} />}
-          source={{
-            uri: this.state.url,
-          }}
-        />
+
+        <View style={styles.containerView}>
+          <GestureHandlerRootView style={{flex: 1, width: '100%'}}>
+            <ImageZoom
+              uri={this.state.url}
+              minScale={0.5}
+              renderLoader={() => <Loading init={true}></Loading>}
+            />
+          </GestureHandlerRootView>
+        </View>
       </View>
     );
   }
@@ -61,6 +75,11 @@ const styles = StyleSheet.create({
   mainView: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  containerView: {
+    backgroundColor: "#F5F6F8",
+    flex: 1,
+    width: '100%',
   },
   headerView:
     Platform.OS == 'ios'
@@ -79,20 +98,12 @@ const styles = StyleSheet.create({
           justifyContent: 'center',
           alignItems: 'center',
         },
-  webView: {
-    flex: 1,
-    width: '100%',
-  },
+
   titleText: {
     color: 'black',
     fontFamily: 'Pretendard-Medium',
     fontWeight: '600',
     fontSize: 17,
-  },
-  subText: {
-    color: 'black',
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 12,
   },
   backView:
     Platform.OS == 'ios'
@@ -112,28 +123,6 @@ const styles = StyleSheet.create({
           padding: 16,
           justifyContent: 'center',
         },
-  shareView:
-    Platform.OS == 'ios'
-      ? {
-          position: 'absolute',
-          height: '100%',
-          right: 0,
-          top: size.STATUSBAR_HEIGHT,
-          padding: 16,
-          justifyContent: 'center',
-        }
-      : {
-          position: 'absolute',
-          height: '100%',
-          right: 0,
-          top: 0,
-          padding: 16,
-          justifyContent: 'center',
-        },
-  backButton: {
-    height: 35,
-    width: 20,
-  },
 });
 
-export default ReserveReportScreen;
+export default ReservePhotoViewScreen;

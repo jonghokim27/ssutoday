@@ -29,6 +29,7 @@ import Swal from '../components/Swal';
 import Top from '../../assets/svg/top.svg';
 import CheckCircle from '../../assets/svg/check-circle.svg';
 import notifee, {AndroidImportance, EventType} from '@notifee/react-native';
+import Null from '../../assets/svg/null.svg';
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
 
@@ -116,7 +117,7 @@ class NoticeScreen extends Component {
       provider = JSON.parse(provider);
     }
 
-    let articleRes = await list(0, 'DESC', '', this.parseProvider(provider));
+    let articleRes = await list(0, 'DESC', '', provider);
     let articles = [];
     if (articleRes.statusCode == 'SSU2060') {
       articles = articleRes.data.articles;
@@ -166,7 +167,7 @@ class NoticeScreen extends Component {
       0,
       orderBy,
       this.state.search,
-      this.parseProvider(this.state.provider),
+      this.state.provider,
     );
     let articles = [];
     if (articleRes.statusCode == 'SSU2060') {
@@ -227,7 +228,7 @@ class NoticeScreen extends Component {
       0,
       this.state.orderBy,
       this.state.search,
-      this.parseProvider(providerArr),
+      providerArr,
     );
     let articles = [];
     if (articleRes.statusCode == 'SSU2060') {
@@ -274,7 +275,7 @@ class NoticeScreen extends Component {
       0,
       this.state.orderBy,
       this.state.search,
-      this.parseProvider(this.state.provider),
+      this.state.provider,
     );
     let articles = [];
     if (articleRes.statusCode == 'SSU2060') {
@@ -322,7 +323,7 @@ class NoticeScreen extends Component {
       0,
       this.state.orderBy,
       this.state.search,
-      this.parseProvider(this.state.provider),
+      this.state.provider,
     );
     let articles = this.state.articles;
     if (articleRes.statusCode == 'SSU2060') {
@@ -369,7 +370,10 @@ class NoticeScreen extends Component {
     }
     this.moreLoading = true;
     this.isRendering = true;
-    this.isRenderingTimeout = setTimeout(() => this.isRendering = false, 1000);
+    this.isRenderingTimeout = setTimeout(
+      () => (this.isRendering = false),
+      1000,
+    );
     this.loading.show();
 
     this.page = this.page + 1;
@@ -377,7 +381,7 @@ class NoticeScreen extends Component {
       this.page,
       this.state.orderBy,
       this.state.search,
-      this.parseProvider(this.state.provider),
+      this.state.provider,
     );
     let articles = this.state.articles.slice(0);
     if (articleRes.statusCode == 'SSU2060') {
@@ -412,43 +416,17 @@ class NoticeScreen extends Component {
     this.moreLoading = false;
   }
 
-  parseProvider(providerArr) {
-    let provider = 0;
-
-    if (providerArr.includes('ssuCatch')) {
-      provider = provider | 16;
-    }
-    if (providerArr.includes('stu')) {
-      provider = provider | 8;
-    }
-    if (providerArr.includes('major')) {
-      if (this.profile.major == 'cse') {
-        provider = provider | 4;
-      } else if (this.profile.major == 'sw') {
-        provider = provider | 2;
-      } else if (this.profile.major == 'media') {
-        provider = provider | 1;
-      }
-    }
-
-    return provider;
-  }
-
   parseTimestamp(timestamp) {
     return getLocaleDateTime(timestamp);
   }
 
   parseProviderHangul(provider) {
-    if (provider == 16) {
+    if (provider == "ssucatch") {
       return 'SSU:Catch';
-    } else if (provider == 8) {
+    } else if (provider == "stu") {
       return '총학생회';
-    } else if (provider == 4) {
-      return '컴퓨터학부';
-    } else if (provider == 2) {
-      return '소프트웨어학부';
-    } else if (provider == 1) {
-      return '글로벌미디어학부';
+    } else {
+      return parseMajor(provider);
     }
   }
 
@@ -650,6 +628,12 @@ class NoticeScreen extends Component {
                 </Pressable>
               );
             })}
+            {
+              this.state.articles.length == 0 && <View style={{alignItems: "center", marginTop: "30%"}}>
+                <Null height={40} width={40}></Null>
+                <Text style={styles.nullText}>검색 조건에 일치하는{"\n"}공지사항이 없어요.</Text>
+              </View>
+            }
           </ScrollView>
           {this.state.isTopButtonVisible && (
             <TouchableOpacity
@@ -666,9 +650,16 @@ class NoticeScreen extends Component {
 }
 
 const styles = StyleSheet.create({
+  nullText: {
+    textAlign: "center",
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 16,
+    color: '#797979',
+    marginTop: 5
+  },
   mainView: {
     flex: 1,
-    backgroundColor: '#F8F8FA',
+    backgroundColor: 'white',
   },
   containerView: {
     flex: 1,
@@ -793,13 +784,13 @@ const styles = StyleSheet.create({
   contentItemTitleText: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
-    color: '#838383',
+    color: '#4A4A4A',
     marginBottom: 8,
   },
   contentItemBodyText: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 13,
-    color: '#B1B1B1',
+    color: '#4A4A4A',
     marginBottom: 8,
   },
   contentItemInfoView: {

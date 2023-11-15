@@ -1,10 +1,10 @@
 import {post} from './common';
 
-const generateToken = async (clientId) => {
+const generateToken = async clientId => {
   return await post(
     'sso/generateToken',
     {
-      clientId
+      clientId,
     },
     true,
   );

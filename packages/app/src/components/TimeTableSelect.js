@@ -12,8 +12,12 @@ import {
 } from 'react-native';
 import TimeBlock30 from '../../assets/svg/timeblock30.svg';
 import TimeBlock60 from '../../assets/svg/timeblock60.svg';
+import TimeBlock90 from '../../assets/svg/timeblock90.svg';
+import TimeBlock120 from '../../assets/svg/timeblock120.svg';
 import TimeBlock30My from '../../assets/svg/timeblock30my.svg';
 import TimeBlock60My from '../../assets/svg/timeblock60my.svg';
+import TimeBlock90My from '../../assets/svg/timeblock90my.svg';
+import TimeBlock120My from '../../assets/svg/timeblock120my.svg';
 import {opacity} from 'react-native-reanimated';
 import moment from 'moment';
 
@@ -76,7 +80,7 @@ class TimeTableSelect extends Component {
       this.props.openSwal(
         'warning',
         '안내',
-        '이미 진행 중인 시간을 선택하셨습니다.\n예약하신 시간 중 일부만 사용하더라도,\n개인 당 하루 최대 예약 가능 시간은\n동일하게 차감됨을 알려드립니다.',
+        '이미 진행 중인 시간을 선택하셨어요.\n예약하신 시간 중 일부만 사용하더라도,\n개인 당 하루 최대 예약 가능 시간은\n동일하게 차감돼요.',
         '확인',
       );
     }
@@ -97,11 +101,11 @@ class TimeTableSelect extends Component {
         this.props.setStartBlock(block);
         return;
       }
-      if (block - this.state.startBlock > 1) {
+      if (block - this.state.startBlock > 3) {
         this.props.openSwal(
           'warning',
           '안내',
-          '한 번에 최대 1시간까지만 예약이\n가능합니다. 추가 이용을 원하시면,\n현재 예약을 완료하신 뒤\n추가로 예약해주시기 바랍니다.',
+          '한 번에 최대 2시간까지만 예약이\n가능해요. 추가 이용을 원하시면,\n현재 예약을 완료하신 뒤\n추가로 예약해주세요.',
           '확인',
         );
         return;
@@ -167,42 +171,50 @@ class TimeTableSelect extends Component {
               );
             })}
 
-        
-
             <View
               style={[
                 styles.hiddenBar,
                 {
                   left: 30,
                   width: !this.props.today
-                    ? (this.props.after
+                    ? this.props.after
                       ? 0
-                      : 16 * 60 + 2)
-                    : ((new Date().getHours() - 6 > 16 ? 16 : new Date().getHours() - 6 ) * 60 +
-                      (new Date().getHours() - 6 > 16 ? 2 : (new Date().getMinutes() >= 30 ? 31 : 1))),
+                      : 16 * 60 + 2
+                    : (new Date().getHours() - 6 >= 16
+                        ? 16
+                        : new Date().getHours() - 6) *
+                        60 +
+                      (new Date().getHours() - 6 >= 16
+                        ? 2
+                        : new Date().getMinutes() >= 15
+                        ? (new Date().getMinutes() >= 45 ? 62 : 31)
+                        : 1),
                   height: '100%',
                 },
               ]}
             />
 
             {this.props.reserves.map((item, index) => {
-                    let opacity = 1;
-                    if(this.props.today){
-                      opacity = (item.endBlock + 1 - 12) * 30 < ((new Date().getHours() - 6) * 60 +
-                      new Date().getMinutes()) ? 0.5 : 1;
-                    }else if(this.props.after){
-                      opacity = 1;
-                    }else{
-                      opacity = 0.5;
-                    }
+              let opacity = 1;
+              if (this.props.today) {
+                opacity =
+                  (item.endBlock + 1 - 12) * 30 <
+                  (new Date().getHours() - 6) * 60 + new Date().getMinutes()
+                    ? 0.5
+                    : 1;
+              } else if (this.props.after) {
+                opacity = 1;
+              } else {
+                opacity = 0.5;
+              }
 
               return (
                 <TouchableOpacity
                   key={index}
                   onPress={() => {
-                    if(item.isMine){
-                      this.navigation.push("ReserveListScreen");
-                    }else{
+                    if (item.isMine) {
+                      this.navigation.push('ReserveListScreen');
+                    } else {
                       this.props.showResvInfoModal(item, this.props.roomName);
                     }
                   }}
@@ -211,16 +223,30 @@ class TimeTableSelect extends Component {
                     {left: 30 + (item.startBlock - 12) * 30 + 1},
                   ]}>
                   {item.endBlock - item.startBlock == 0 && !item.isMine && (
-                    <TimeBlock30 style={{opacity: opacity}}/>
+                    <TimeBlock30 style={{opacity: opacity, marginBottom: 1}} />
                   )}
                   {item.endBlock - item.startBlock == 1 && !item.isMine && (
-                    <TimeBlock60 style={{opacity: opacity}}/>
+                    <TimeBlock60 style={{opacity: opacity}} />
+                  )}
+                  {item.endBlock - item.startBlock == 2 && !item.isMine && (
+                    <TimeBlock90 style={{opacity: opacity, marginBottom: 1}} />
+                  )}
+                  {item.endBlock - item.startBlock == 3 && !item.isMine && (
+                    <TimeBlock120 style={{opacity: opacity, marginBottom: 1}} />
                   )}
                   {item.endBlock - item.startBlock == 0 && item.isMine && (
-                    <TimeBlock30My style={{opacity: opacity}}/>
+                    <TimeBlock30My
+                      style={{opacity: opacity, marginBottom: 1}}
+                    />
                   )}
                   {item.endBlock - item.startBlock == 1 && item.isMine && (
-                    <TimeBlock60My style={{opacity: opacity}}/>
+                    <TimeBlock60My style={{opacity: opacity}} />
+                  )}
+                  {item.endBlock - item.startBlock == 2 && item.isMine && (
+                    <TimeBlock90My style={{opacity: opacity, marginBottom: 1}} />
+                  )}
+                  {item.endBlock - item.startBlock == 3 && item.isMine && (
+                    <TimeBlock120My style={{opacity: opacity, marginBottom: 1}} />
                   )}
                 </TouchableOpacity>
               );
@@ -264,7 +290,7 @@ class TimeTableSelect extends Component {
                   styles.redBox,
                   {left: 30 + (this.state.startBlock - 12) * 30 + 1},
                 ]}>
-                <TimeBlock30My />
+                <TimeBlock30My style={{marginBottom: 1}} />
               </View>
             )}
 
@@ -274,7 +300,9 @@ class TimeTableSelect extends Component {
                   styles.redBox,
                   {left: 30 + (this.state.startBlock - 12) * 30 + 1},
                 ]}>
-                <TimeBlock60My />
+                {this.state.endBlock - this.state.startBlock == 1 && <TimeBlock60My/>}
+                {this.state.endBlock - this.state.startBlock == 2 && <TimeBlock90My style={{marginBottom: 1}} />}
+                {this.state.endBlock - this.state.startBlock == 3 && <TimeBlock120My style={{marginBottom: 1}} />}
               </View>
             )}
           </View>

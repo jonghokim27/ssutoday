@@ -18,7 +18,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Loading from '../components/Loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {register, unregister} from '../apis/device';
+import {getOption, register, unregister, updateOption} from '../apis/device';
 import Swal from '../components/Swal';
 import DeviceInfo from 'react-native-device-info';
 import messaging from '@react-native-firebase/messaging';
@@ -29,6 +29,8 @@ import Up from '../../assets/svg/up.svg';
 import {Pressable} from 'react-native';
 import QSwal from '../components/QSwal';
 import {logout} from '../apis/user';
+import {APP_VERSION} from '../constants/setting';
+import { parseMajor } from '../constants/function';
 
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
@@ -45,21 +47,18 @@ class MyScreen extends Component {
       notification: false,
       showDeveloper: false,
       showHelp: false,
+      noticeNotification: false,
+      reserveNotification: false,
+      lmsNotification: false
     };
   }
 
   async componentDidMount() {
+    this.loading.show();
     let profile = await AsyncStorage.getItem('profile');
     profile = JSON.parse(profile);
 
-    let majorHangul = '';
-    if (profile.major == 'cse') {
-      majorHangul = '컴퓨터학부';
-    } else if (profile.major == 'sw') {
-      majorHangul = '소프트웨어학부';
-    } else if (profile.major == 'media') {
-      majorHangul = '글로벌미디어학부';
-    }
+    let majorHangul = parseMajor(profile.major);
 
     let notification = await AsyncStorage.getItem('notificationEnabled');
     if (notification == null) {
@@ -70,12 +69,51 @@ class MyScreen extends Component {
       notification = true;
     }
 
+    let noticeNotification = false;
+    let reserveNotification = false;
+    let lmsNotification = false;
+
+    if(notification){
+      let uuid = await DeviceInfo.getUniqueId();
+      let getOptionRes = await getOption(Platform.OS, uuid);
+      if (getOptionRes.statusCode == 'SSU0000') {
+        this.swal.show(
+          'error',
+          '서버 연결 실패',
+          '서버에 연결할 수 없어요.\n잠시 후 다시 시도해 주세요.',
+          '확인',
+          async () => {
+            await this.swal.hide();
+          },
+        );
+      } else if(getOptionRes.statusCode == 'SSU2170'){
+        noticeNotification = getOptionRes.data.notice;
+        reserveNotification = getOptionRes.data.reserve;
+        lmsNotification = getOptionRes.data.lms;
+      }
+      else {
+        this.swal.show(
+          'error',
+          '서버 연결 실패',
+          '알 수 없는 오류가 발생했어요.\n잠시 후 다시 시도해 주세요.\n\n오류 코드: ' +
+          getOptionRes.statusCode,
+          '확인',
+          async () => {
+            await this.swal.hide();
+          },
+        );
+      }
+    }
+
     this.setState({
       major: profile.major,
       majorHangul: majorHangul,
       name: profile.name,
       studentId: profile.studentId,
       notification: notification,
+      noticeNotification: noticeNotification,
+      reserveNotification: reserveNotification,
+      lmsNotification: lmsNotification
     });
 
     this.loading.hide();
@@ -100,8 +138,8 @@ class MyScreen extends Component {
           this.loading.hide();
           this.swal.show(
             'warning',
-            '알림 허용 필요',
-            '알림이 허용되어 있지 않아요.\n설정으로 이동하여 알림을 허용해주세요.',
+            '알림 권한 필요',
+            '알림 권한이 허용되어 있지 않아요.\n설정으로 이동하여 알림 권한을\n허용해주세요.',
             '설정으로 이동',
             () => {
               Linking.openURL('app-settings://notification/ssutoday');
@@ -121,8 +159,8 @@ class MyScreen extends Component {
             this.loading.hide();
             this.swal.show(
               'warning',
-              '알림 허용 필요',
-              '알림이 허용되어 있지 않아요.\n설정으로 이동하여 알림을 허용해주세요.',
+              '알림 권한 필요',
+              '알림 권한이 허용되어 있지 않아요.\n설정으로 이동하여 알림 권한을\n허용해주세요.',
               '설정으로 이동',
               () => {
                 Linking.openSettings();
@@ -197,12 +235,72 @@ class MyScreen extends Component {
       await messaging().unsubscribeFromTopic(this.state.major);
     }
 
+    let noticeNotification = false;
+    let reserveNotification = false;
+    let lmsNotification = false;
+    if(val){
+      noticeNotification = true;
+      reserveNotification = true;
+      lmsNotification = true;
+    }
+
     this.loading.hide();
     this.setState({
       notification: val,
+      noticeNotification: noticeNotification,
+      reserveNotification: reserveNotification,
+      lmsNotification: lmsNotification
     });
 
     await AsyncStorage.setItem('notificationEnabled', val ? 'true' : 'false');
+  }
+
+  async setNotificationOption(type, value){
+    this.loading.show();
+
+    let uuid = await DeviceInfo.getUniqueId();
+    let updateOptionRes = await updateOption(Platform.OS, uuid, type, value);
+    if (updateOptionRes.statusCode == 'SSU0000') {
+      this.swal.show(
+        'error',
+        '서버 연결 실패',
+        '서버에 연결할 수 없어요.\n잠시 후 다시 시도해 주세요.',
+        '확인',
+        async () => {
+          await this.swal.hide();
+        },
+      );
+      this.loading.hide();
+      return;
+    } else if(updateOptionRes.statusCode != 'SSU2180'){
+      this.swal.show(
+        'error',
+        '서버 연결 실패',
+        '알 수 없는 오류가 발생했어요.\n잠시 후 다시 시도해 주세요.\n\n오류 코드: ' +
+        updateOptionRes.statusCode,
+        '확인',
+        async () => {
+          await this.swal.hide();
+        },
+      );
+      this.loading.hide();
+      return;
+    }
+
+    if(type == "notice"){
+      if(value){
+        await messaging().subscribeToTopic('all');
+        await messaging().subscribeToTopic(this.state.major);
+      } else{
+        await messaging().unsubscribeFromTopic('all');
+        await messaging().unsubscribeFromTopic(this.state.major);
+      }
+    }
+
+    this.setState({
+      [type + "Notification"]: value
+    })
+    this.loading.hide();
   }
 
   async logoutAsk() {
@@ -320,14 +418,13 @@ class MyScreen extends Component {
           </View>
 
           <View style={styles.settingView}>
-            <View style={styles.settingInnerView}>
+            <View style={[styles.settingInnerView, this.state.notification ? {} : {marginBottom: 0}]}>
               <View style={styles.settingLeftView}>
                 <View style={{flexDirection: 'column'}}>
-                  <Text style={styles.settingTitleView}>알림</Text>
-                  <Text style={styles.settingTextView}>
-                    알림 설정을 켜시면 공지사항이나{'\n'}예약 관련 알림을
-                    보내드려요.
-                  </Text>
+                  <Text style={styles.settingTitleView}>알림 설정</Text>
+                  { !this.state.notification && <Text style={styles.settingTextView}>
+                    알림을 수신하도록 설정하시면 공지사항, 예약,{"\n"}LMS와 같은 각종 내용을 보내드려요.
+                  </Text>}
                 </View>
               </View>
               <View style={styles.settingRightView}>
@@ -342,6 +439,63 @@ class MyScreen extends Component {
                 />
               </View>
             </View>
+            { this.state.notification && 
+            <>
+            <View style={styles.settingInnerView}>
+              <View style={styles.settingLeftView}>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={styles.settingTitleViewSub}>공지사항</Text>
+                </View>
+              </View>
+              <View style={styles.settingRightView}>
+                <Switch
+                  trackColor={{false: 'white', true: 'white'}}
+                  thumbColor={this.state.noticeNotification ? '#7B70F0' : '#f4f3f4'}
+                  ios_backgroundColor="white"
+                  onValueChange={val => {
+                    this.setNotificationOption("notice", val);
+                  }}
+                  value={this.state.noticeNotification}
+                />
+              </View>
+            </View>
+            <View style={styles.settingInnerView}>
+              <View style={styles.settingLeftView}>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={styles.settingTitleViewSub}>예약</Text>
+                </View>
+              </View>
+              <View style={styles.settingRightView}>
+                <Switch
+                  trackColor={{false: 'white', true: 'white'}}
+                  thumbColor={this.state.reserveNotification ? '#7B70F0' : '#f4f3f4'}
+                  ios_backgroundColor="white"
+                  onValueChange={val => {
+                    this.setNotificationOption("reserve", val);
+                  }}
+                  value={this.state.reserveNotification}
+                />
+              </View>
+            </View>
+            <View style={[styles.settingInnerView, {marginBottom: 0}]}>
+              <View style={styles.settingLeftView}>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={styles.settingTitleViewSub}>LMS</Text>
+                </View>
+              </View>
+              <View style={styles.settingRightView}>
+                <Switch
+                  trackColor={{false: 'white', true: 'white'}}
+                  thumbColor={this.state.lmsNotification ? '#7B70F0' : '#f4f3f4'}
+                  ios_backgroundColor="white"
+                  onValueChange={val => {
+                    this.setNotificationOption("lms", val);
+                  }}
+                  value={this.state.lmsNotification}
+                />
+              </View>
+            </View></>
+          }
           </View>
 
           <ScrollView style={styles.linkView}>
@@ -475,6 +629,13 @@ class MyScreen extends Component {
                 <Right />
               </View>
             </Pressable>
+            <Text
+              style={[
+                styles.settingTextView,
+                {paddingLeft: 18, paddingTop: 40, fontSize: 14},
+              ]}>
+              v{APP_VERSION}_{Platform.OS == 'android' ? '5030' : '51'}_2023.11.15{'\n'}ⓒ 슈투데이. 모든 권리 보유.
+            </Text>
             <View style={{height: 20}} />
           </ScrollView>
         </View>
@@ -487,7 +648,7 @@ class MyScreen extends Component {
 const styles = StyleSheet.create({
   mainView: {
     flex: 1,
-    backgroundColor: '#F8F8FA',
+    backgroundColor: 'white',
   },
   containerView: {
     flex: 1,
@@ -526,14 +687,14 @@ const styles = StyleSheet.create({
     fontSize: 35,
     lineHeight: 35,
     marginBottom: 1,
-    color: '#656565',
+    color: 'black',
   },
   infoText: {
     marginLeft: 4,
     fontFamily: 'Pretendard-Bold',
     fontSize: 12,
     lineHeight: 12,
-    color: '#656565',
+    color: 'black',
   },
   settingView: {
     backgroundColor: '#F0F0F0',
@@ -548,6 +709,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // height: 77,
     width: '100%',
+    marginBottom: 8,
   },
   settingLeftView: {
     // height: 77,
@@ -562,6 +724,12 @@ const styles = StyleSheet.create({
     color: '#838383',
     fontSize: 20,
     fontFamily: 'Pretendard-Bold',
+    marginBottom: 4,
+  },
+  settingTitleViewSub: {
+    color: '#838383',
+    fontSize: 16,
+    fontFamily: 'Pretendard-Medium',
     marginBottom: 4,
   },
   settingTextView: {

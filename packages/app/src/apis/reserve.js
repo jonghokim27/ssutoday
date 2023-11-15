@@ -1,4 +1,5 @@
-import {post} from './common';
+import { API_BASE_URL } from '../constants/setting';
+import {makeHeaders, post} from './common';
 
 const request = async (roomNo, date, startBlock, endBlock) => {
   return await post(
@@ -44,4 +45,37 @@ const cancel = async idx => {
   );
 };
 
-export {request, status, list, cancel};
+const uploadVerifyPhoto = async (idx, file, filename) => {
+  let formData = new FormData();
+  formData.append("file", {
+    name: filename,
+    type: "image/jpeg",
+    uri: file
+  });
+  formData.append("idx", idx);
+
+  let headers = await makeHeaders(true);
+  headers['Content-Type'] = "multipart/form-data";
+
+  let response;
+  try{
+    response = await fetch(API_BASE_URL + "reserve/verifyPhoto/upload", { headers: headers, method: "POST", body: formData });
+  } catch(e){
+    return {
+      statusCode: 'SSU0000',
+      data: null,
+      message: 'Failed to connect to server',
+    };
+  }
+
+  let accessToken = response.headers.get("access-token");
+  let refreshToken = response.headers.get("refresh-token");
+  if (accessToken && refreshToken) {
+    await AsyncStorage.setItem('accessToken', accessToken);
+    await AsyncStorage.setItem('refreshToken', refreshToken);
+  }
+
+  return await response.json();
+};
+
+export {request, status, list, cancel, uploadVerifyPhoto};

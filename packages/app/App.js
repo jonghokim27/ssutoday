@@ -1,7 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import RootNavigator from './src/navigators/RootNavigator';
 import {navigationRef} from './src/navigators/RootNavigation';
+import analytics from '@react-native-firebase/analytics';
+import CodePush from 'react-native-code-push';
 import {
   BackHandler,
   ToastAndroid,
@@ -18,6 +20,8 @@ Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
 
 const App = () => {
+  const routeNameRef = useRef();
+
   useEffect(() => {
     // back handle exit app
     BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
@@ -33,10 +37,12 @@ const App = () => {
         body: remoteMessage.notification.body,
         data: remoteMessage.data,
         android: {
+          sound: "default",
           channelId: 'default',
           importance: AndroidImportance.HIGH,
         },
         ios: {
+          sound: "default",
           foregroundPresentationOptions: {
             badge: true,
             sound: true,
@@ -56,6 +62,7 @@ const App = () => {
       navigationRef.current.getCurrentRoute().name != 'WelcomeScreen' &&
       navigationRef.current.getCurrentRoute().name != 'NoticeScreen' &&
       navigationRef.current.getCurrentRoute().name != 'ReserveScreen' &&
+      navigationRef.current.getCurrentRoute().name != 'LMSScreen' &&
       navigationRef.current.getCurrentRoute().name != 'MyScreen'
     ) {
       navigationRef.current.goBack();
@@ -64,7 +71,7 @@ const App = () => {
 
     backHandlerClickCount += 1;
     if (backHandlerClickCount < 2) {
-      ToastAndroid.show('한번 더 누르시면 앱이 종료됩니다.', 1500);
+      ToastAndroid.show('한번 더 누르시면 앱이 종료돼요.', 1500);
       setTimeout(() => {
         backHandlerClickCount = 0;
       }, 1500);
@@ -144,16 +151,41 @@ const App = () => {
             ReserveListScreen: 'reserve/list',
           },
         },
+        LMSNavigator: {
+          initialRouteName: 'LMSScreen',
+          screens: {
+            LMSScreen: 'lms'
+          }
+        }
       },
     },
   };
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
+    <NavigationContainer 
+      ref={navigationRef}
+      linking={linking} 
+      onReady={() => {
+        routeNameRef.current = navigationRef.current.getCurrentRoute().name;
+      }}
+      onStateChange={async () => {
+          const previousRouteName = routeNameRef.current;
+          const currentRouteName = navigationRef.current.getCurrentRoute().name;
+
+          if (previousRouteName !== currentRouteName) {
+            routeNameRef.current = currentRouteName;
+            await analytics().logScreenView({
+              screen_name: currentRouteName,
+              screen_class: currentRouteName,
+            });
+          }
+      }}>
       <StatusBar barStyle={Platform.OS == 'ios' ? 'dark-content' : ''} />
       <RootNavigator />
     </NavigationContainer>
   );
 };
 
-export default App;
+export default CodePush({
+  checkFrequency: CodePush.CheckFrequency.MANUAL
+})(App);
