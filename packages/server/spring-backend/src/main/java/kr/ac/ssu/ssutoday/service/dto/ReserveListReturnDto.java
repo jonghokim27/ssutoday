@@ -7,7 +7,7 @@
 package kr.ac.ssu.ssutoday.service.dto;
 
 import kr.ac.ssu.ssutoday.controller.dto.ReserveListResponseDto;
-import kr.ac.ssu.ssutoday.entity.Reserve;
+import kr.ac.ssu.ssutoday.vo.ReserveDetailVo;
 import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @Data
 public class ReserveListReturnDto {
-    private List<Reserve> reserves;
+    private List<ReserveDetailVo> reserves;
     private Integer totalPages;
 
     @NotNull

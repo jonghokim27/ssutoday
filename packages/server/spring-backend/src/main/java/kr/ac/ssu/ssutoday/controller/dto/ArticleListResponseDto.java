@@ -15,6 +15,6 @@ import java.util.List;
 @Data
 @Builder
 public class ArticleListResponseDto {
-    List<Article> articles;
-    Integer totalPages;
+    private List<Article> articles;
+    private Integer totalPages;
 }

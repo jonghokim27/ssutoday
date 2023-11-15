@@ -21,9 +21,10 @@ public class RoomListRequestDto {
     private String date;
 
     @NotNull
-    public RoomReserveListParamDto toRoomReserveListParamDto(@NotNull Integer studentId, @NotNull String roomNo){
+    public RoomReserveListParamDto toRoomReserveListParamDto(@NotNull Integer studentId, @NotNull Boolean isAdmin, @NotNull String roomNo){
         return RoomReserveListParamDto.builder()
                 .studentId(studentId)
+                .isAdmin(isAdmin)
                 .roomNo(roomNo)
                 .date(Date.valueOf(this.date))
                 .build();

@@ -14,4 +14,5 @@ import lombok.Data;
 public class RoomGetParamDto {
     private String roomNo;
     private String major;
+    private Boolean isAdmin;
 }

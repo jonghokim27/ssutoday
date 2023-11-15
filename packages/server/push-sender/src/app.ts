@@ -103,13 +103,15 @@ async function sendToken(token: string, title: string, body: string, link: strin
             },
             android: {
                 notification: {
-                    priority: "high"
+                    priority: "high",
+                    sound: "default"
                 }
             },
             apns: {
                 payload: {
                     aps: {
-                        contentAvailable: true
+                        contentAvailable: true,
+                        sound: "cr"
                     }
                 },
                 headers: {

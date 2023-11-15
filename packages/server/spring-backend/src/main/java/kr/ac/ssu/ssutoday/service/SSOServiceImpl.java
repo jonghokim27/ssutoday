@@ -50,7 +50,7 @@ public class SSOServiceImpl implements SSOService {
             throw new Exception();
         }
 
-        String ssoToken = tokenProvider.generateRandomHashToken();
+        String ssoToken = tokenProvider.generateRandomHashToken(50);
 
         SSOToken ssoTokenDB = SSOToken.builder()
                 .ssoToken(ssoToken)

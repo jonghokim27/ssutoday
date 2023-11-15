@@ -51,12 +51,14 @@ public class StudentServiceImpl implements StudentService {
         }
         else{
             student = studentOptional.get();
+            student.setMajor(studentLoginParamDto.getMajor());
+            student.setName(studentLoginParamDto.getName());
             student.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         }
         studentRepository.save(student);
 
         String accessToken = tokenProvider.generateAccessToken(studentLoginParamDto.toJWTPayloadVO());
-        String refreshToken = tokenProvider.generateRandomHashToken();
+        String refreshToken = tokenProvider.generateRandomHashToken(50);
 
         RefreshToken refreshTokenDB = RefreshToken.builder()
                 .refreshToken(refreshToken)
@@ -117,12 +119,20 @@ public class StudentServiceImpl implements StudentService {
 
             Optional<Student> studentOptional = studentRepository.findById(refreshToken.getStudentId());
             if(studentOptional.isEmpty()){
-                throw new Exception("User does not exist.");
+                throw new Exception("Student does not exist.");
             }
 
             Student student = studentOptional.get();
+
+            if(!student.getMajor().equals(refreshToken.getMajor())){
+                throw new Exception("Student major has changed.");
+            }
+            else if(!student.getName().equals(refreshToken.getName())){
+                throw new Exception("Student name has changed.");
+            }
+
             String newAccessToken = tokenProvider.generateAccessToken(student.toJWTPayloadVO());
-            String newRefreshToken = tokenProvider.generateRandomHashToken();
+            String newRefreshToken = tokenProvider.generateRandomHashToken(50);
 
             RefreshToken newRefreshTokenDB = RefreshToken.builder()
                     .refreshToken(newRefreshToken)
@@ -144,7 +154,13 @@ public class StudentServiceImpl implements StudentService {
 
         Optional<Student> student = studentRepository.findById(jwtPayloadVO.getStudentId());
         if(student.isEmpty()){
-            throw new Exception("User does not exist.");
+            throw new Exception("Student does not exist.");
+        }
+        else if(!student.get().getMajor().equals(jwtPayloadVO.getMajor())){
+            throw new Exception("Student major has changed.");
+        }
+        else if(!student.get().getName().equals(jwtPayloadVO.getName())){
+            throw new Exception("Student name has changed.");
         }
 
         return StudentValidateReturnDto.builder()
@@ -152,5 +168,18 @@ public class StudentServiceImpl implements StudentService {
                 .accessToken(Optional.empty())
                 .refreshToken(Optional.empty())
                 .build();
+    }
+
+    /**
+     * Update xnApiToken
+     * @param studentUpdateXnApiTokenParamDto update params
+     * @author jonghokim27
+     */
+    @Override
+    public void updateXnApiToken(@NotNull StudentUpdateXnApiTokenParamDto studentUpdateXnApiTokenParamDto) {
+        Student student = studentUpdateXnApiTokenParamDto.getStudent();
+        student.setXnApiToken(studentUpdateXnApiTokenParamDto.getXnApiToken());
+        student.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        studentRepository.save(student);
     }
 }

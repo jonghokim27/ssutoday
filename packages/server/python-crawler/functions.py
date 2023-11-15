@@ -10,26 +10,32 @@ producer = KafkaProducer(
 
 def send_push(article, mode):
     if mode == "created":
-        title = "공지사항이 등록되었어요!"
+        title = "📋 공지사항이 등록되었어요!"
     elif mode == "edited":
-        title = "공지사항이 수정되었어요!"
+        title = "📋 공지사항이 수정되었어요!"
     
     body = article['title']
-    if article['provider'] == 16:
+    if article['provider'] == "ssucatch":
         body = "[SSU:Catch] " + body
         topic = "all"
-    elif article['provider'] == 8:
+    elif article['provider'] == "stu":
         body = "[총학생회] " + body
         topic = "all"
-    elif article['provider'] == 4:
+    elif article['provider'] == "cse":
         body = "[컴퓨터학부] " + body
         topic = "cse"
-    elif article['provider'] == 2:
+    elif article['provider'] == "sw":
         body = "[소프트웨어학부] " + body
         topic = "sw"
-    elif article['provider'] == 1:
+    elif article['provider'] == "media":
         body = "[글로벌미디어학부] " + body
         topic = "media"
+    elif article['provider'] == "infocom":
+        body = "[전자정보공학부] " + body
+        topic = "infocom"
+    elif article['provider'] == "aix":
+        body = "[AI융합학부] " + body
+        topic = "aix"
 
     message = {'type': 'topic', 'topic': topic, 'title': title, 'body': body, 'link': 'ssutoday://notice/' + str(article['idx'])}
     producer.send('pushMessage', value=message)

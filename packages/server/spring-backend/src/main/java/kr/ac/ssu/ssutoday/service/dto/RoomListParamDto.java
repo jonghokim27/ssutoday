@@ -13,4 +13,5 @@ import lombok.Data;
 @Data
 public class RoomListParamDto {
     private String major;
+    private Boolean isAdmin;
 }

@@ -11,6 +11,7 @@ import kr.ac.ssu.ssutoday.common.CommonResponse;
 import kr.ac.ssu.ssutoday.common.StatusCode;
 import kr.ac.ssu.ssutoday.controller.dto.ArticleGetRequestDto;
 import kr.ac.ssu.ssutoday.controller.dto.ArticleListRequestDto;
+import kr.ac.ssu.ssutoday.entity.Student;
 import kr.ac.ssu.ssutoday.service.ArticleService;
 import kr.ac.ssu.ssutoday.service.dto.ArticleGetReturnDto;
 import kr.ac.ssu.ssutoday.service.dto.ArticleListReturnDto;
@@ -18,11 +19,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/article")
@@ -45,7 +50,17 @@ public class ArticleController {
     @NotNull
     @PostMapping("/list")
     @ResponseBody
-    public CommonResponse get(@NotNull @Valid @RequestBody ArticleListRequestDto articleListRequestDto){
+    public CommonResponse list(@NotNull @Valid @RequestBody ArticleListRequestDto articleListRequestDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Student student = (Student) authentication.getPrincipal();
+
+        List<String> selectedProviders = articleListRequestDto.getProvider();
+        for(int i=0; i<selectedProviders.size(); i++){
+            if(selectedProviders.get(i).equals("major")){
+                selectedProviders.set(i, student.getMajor());
+            }
+        }
+
         ArticleListReturnDto articleListReturnDto = articleService.articleList(articleListRequestDto.toArticleListParamDto());
 
         return new CommonResponse(statusCode.SSU2060, articleListReturnDto.toArticleListResponseDto(), statusCode.SSU2060_MSG);

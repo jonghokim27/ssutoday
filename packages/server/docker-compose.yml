@@ -87,6 +87,8 @@ services:
       - REDIS_PORT=6379
       - KAFKA_HOST=kafka:9092
       - CLIENT_KEY=${CLIENT_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     ports:
       - 80:80
     networks:

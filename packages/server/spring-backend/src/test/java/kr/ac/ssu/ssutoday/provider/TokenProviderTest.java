@@ -16,7 +16,7 @@ public class TokenProviderTest {
 
     @Test
     public void generateRefreshToken(){
-        String refreshToken = tokenProvider.generateRandomHashToken();
+        String refreshToken = tokenProvider.generateRandomHashToken(50);
         log.info(refreshToken);
     }
 }

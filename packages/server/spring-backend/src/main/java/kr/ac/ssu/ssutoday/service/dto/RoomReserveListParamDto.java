@@ -15,6 +15,7 @@ import java.sql.Date;
 @Data
 public class RoomReserveListParamDto {
     private Integer studentId;
+    private Boolean isAdmin;
     private String roomNo;
     private Date date;
 }

@@ -6,9 +6,7 @@
 
 package kr.ac.ssu.ssutoday.service;
 
-import kr.ac.ssu.ssutoday.service.dto.DeviceCheckVersionParamDto;
-import kr.ac.ssu.ssutoday.service.dto.DeviceRegisterParamDto;
-import kr.ac.ssu.ssutoday.service.dto.DeviceUnregisterParamDto;
+import kr.ac.ssu.ssutoday.service.dto.*;
 import org.jetbrains.annotations.NotNull;
 
 public interface DeviceService {
@@ -22,9 +20,28 @@ public interface DeviceService {
     /**
      * Unregister device
      * @param deviceUnregisterParamDto device params
+     * @throws Exception thrown when device does not exist
      * @author jonghokim27
      */
     void deviceUnregister(@NotNull DeviceUnregisterParamDto deviceUnregisterParamDto) throws Exception;
+
+    /**
+     * Get device option
+     * @param deviceGetOptionParamDto device params
+     * @return device option (DeviceGetOptionReturnDto)
+     * @throws Exception thrown when device does not exist
+     * @author jonghokim27
+     */
+    @NotNull
+    DeviceGetOptionReturnDto deviceGetOption(@NotNull DeviceGetOptionParamDto deviceGetOptionParamDto) throws Exception;
+
+    /**
+     * Update device option
+     * @param deviceUpdateOptionParamDto device and option params
+     * @throws Exception thrown when device does not exist
+     * @author jonghokim27
+     */
+    void deviceUpdateOption(@NotNull DeviceUpdateOptionParamDto deviceUpdateOptionParamDto) throws Exception;
 
     /**
      * Check version

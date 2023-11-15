@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 public class UsaintAuthParamDto {
     @NotNull
     private String sToken;
-
     @NotNull
     private Integer sIdno;
 }

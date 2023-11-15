@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import kr.ac.ssu.ssutoday.common.CommonResponse;
 import kr.ac.ssu.ssutoday.common.StatusCode;
 import kr.ac.ssu.ssutoday.controller.dto.StudentLoginRequestDto;
+import kr.ac.ssu.ssutoday.controller.dto.StudentUpdateXnApiTokenRequestDto;
 import kr.ac.ssu.ssutoday.entity.Student;
 import kr.ac.ssu.ssutoday.exception.APIRequestFailedException;
 import kr.ac.ssu.ssutoday.exception.AuthFailedException;
@@ -19,6 +20,7 @@ import kr.ac.ssu.ssutoday.exception.UnsupportedMajorException;
 import kr.ac.ssu.ssutoday.service.AuthService;
 import kr.ac.ssu.ssutoday.service.StudentService;
 import kr.ac.ssu.ssutoday.service.dto.StudentLoginReturnDto;
+import kr.ac.ssu.ssutoday.service.dto.StudentUpdateXnApiTokenParamDto;
 import kr.ac.ssu.ssutoday.service.dto.UsaintAuthReturnDto;
 import kr.ac.ssu.ssutoday.util.HTTPRequestUtil;
 import lombok.RequiredArgsConstructor;
@@ -113,5 +115,26 @@ public class StudentController {
 
         return new CommonResponse(statusCode.SSU2030, null, statusCode.SSU2030_MSG);
     }
+
+    /**
+     * Update xnApiToken (19)
+     * /student/updateXnApiToken
+     * @return null
+     * @author jonghokim27
+     */
+    @Nullable
+    @PostMapping("/updateXnApiToken")
+    @ResponseBody
+    public CommonResponse updateXnApiToken(@NotNull @Valid @RequestBody StudentUpdateXnApiTokenRequestDto studentUpdateXnApiTokenRequestDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Student student = (Student) authentication.getPrincipal();
+
+        StudentUpdateXnApiTokenParamDto studentUpdateXnApiTokenParamDto = studentUpdateXnApiTokenRequestDto.toStudentUpdateXnApiTokenParamDto(student);
+        studentService.updateXnApiToken(studentUpdateXnApiTokenParamDto);
+
+        return new CommonResponse(statusCode.SSU2190, null, statusCode.SSU2190_MSG);
+    }
+
+
 
 }

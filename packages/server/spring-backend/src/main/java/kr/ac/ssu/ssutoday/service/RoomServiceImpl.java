@@ -39,14 +39,13 @@ public class RoomServiceImpl implements RoomService {
     @NotNull
     @Override
     public RoomGetReturnDto roomGet(RoomGetParamDto roomGetParamDto) {
-        int majorInteger = switch (roomGetParamDto.getMajor()) {
-            case "cse" -> 4;
-            case "sw" -> 2;
-            case "media" -> 1;
-            default -> 0;
-        };
+        Optional<Room> roomOptional;
 
-        Optional<Room> roomOptional = roomRepository.findByIdAndMajor(roomGetParamDto.getRoomNo(), majorInteger);
+        if(!roomGetParamDto.getIsAdmin()){
+            roomOptional = roomRepository.findByIdAndMajor(roomGetParamDto.getRoomNo(), '"' + roomGetParamDto.getMajor() + '"');
+        } else {
+            roomOptional = roomRepository.findById(roomGetParamDto.getRoomNo());
+        }
 
         return RoomGetReturnDto.builder()
                 .room(roomOptional)
@@ -62,14 +61,13 @@ public class RoomServiceImpl implements RoomService {
     @NotNull
     @Override
     public RoomListReturnDto roomList(RoomListParamDto roomListParamDto) {
-        int majorInteger = switch (roomListParamDto.getMajor()) {
-            case "cse" -> 4;
-            case "sw" -> 2;
-            case "media" -> 1;
-            default -> 0;
-        };
+        List<Room> roomList;
 
-        List<Room> roomList = roomRepository.findAllByMajor(majorInteger);
+        if(!roomListParamDto.getIsAdmin()) {
+            roomList = roomRepository.findAllByMajor('"' + roomListParamDto.getMajor() + '"');
+        } else {
+            roomList = roomRepository.findAll();
+        }
 
         return RoomListReturnDto.builder()
                 .rooms(roomList)

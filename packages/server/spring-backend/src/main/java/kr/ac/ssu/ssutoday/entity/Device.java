@@ -37,6 +37,15 @@ public class Device {
     @Column(name = "pushToken", nullable = false, length = 200)
     private String pushToken;
     @Basic
+    @Column(name = "notice", nullable = false)
+    private Integer notice;
+    @Basic
+    @Column(name = "reserve", nullable = false)
+    private Integer reserve;
+    @Basic
+    @Column(name = "lms", nullable = false)
+    private Integer lms;
+    @Basic
     @Column(name = "createdAt", nullable = false)
     private Timestamp createdAt;
     @Basic

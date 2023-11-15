@@ -10,9 +10,7 @@ import kr.ac.ssu.ssutoday.entity.Device;
 import kr.ac.ssu.ssutoday.entity.Version;
 import kr.ac.ssu.ssutoday.repository.DeviceRepository;
 import kr.ac.ssu.ssutoday.repository.VersionRepository;
-import kr.ac.ssu.ssutoday.service.dto.DeviceCheckVersionParamDto;
-import kr.ac.ssu.ssutoday.service.dto.DeviceRegisterParamDto;
-import kr.ac.ssu.ssutoday.service.dto.DeviceUnregisterParamDto;
+import kr.ac.ssu.ssutoday.service.dto.*;
 import kr.ac.ssu.ssutoday.vo.VersionVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +54,9 @@ public class DeviceServiceImpl implements DeviceService{
                     .osType(deviceRegisterParamDto.getOsType())
                     .uuid(deviceRegisterParamDto.getUuid())
                     .pushToken(deviceRegisterParamDto.getPushToken())
+                    .notice(1)
+                    .reserve(1)
+                    .lms(1)
                     .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
         }
@@ -102,5 +103,70 @@ public class DeviceServiceImpl implements DeviceService{
         VersionVo user = new VersionVo(deviceCheckVersionParamDto.getVersion());
 
         return user.compareTo(required) > 0;
+    }
+
+    /**
+     * Get device option
+     * @param deviceGetOptionParamDto device params
+     * @return device option (DeviceGetOptionReturnDto)
+     * @throws Exception thrown when device does not exist
+     * @author jonghokim27
+     */
+    @NotNull
+    @Override
+    public DeviceGetOptionReturnDto deviceGetOption(@NotNull DeviceGetOptionParamDto deviceGetOptionParamDto) throws Exception {
+        Optional<Device> deviceOptional = deviceRepository.findByStudentIdAndOsTypeAndUuid(
+                deviceGetOptionParamDto.getStudent().getId(),
+                deviceGetOptionParamDto.getOsType(),
+                deviceGetOptionParamDto.getUuid()
+        );
+
+        if(deviceOptional.isEmpty()){
+            log.debug("Device with osType {} and uuid {} does not exist.",
+                    deviceGetOptionParamDto.getOsType(),
+                    deviceGetOptionParamDto.getUuid());
+            throw new Exception("Device with osType and uuid does not exist.");
+        }
+        Device device = deviceOptional.get();
+
+        return DeviceGetOptionReturnDto.builder()
+                .notice(device.getNotice() == 1)
+                .reserve(device.getReserve() == 1)
+                .lms(device.getLms() == 1)
+                .build();
+    }
+
+    /**
+     * Update device option
+     * @param deviceUpdateOptionParamDto device and option params
+     * @throws Exception thrown when device does not exist
+     * @author jonghokim27
+     */
+    @Override
+    public void deviceUpdateOption(@NotNull DeviceUpdateOptionParamDto deviceUpdateOptionParamDto) throws Exception {
+        Optional<Device> deviceOptional = deviceRepository.findByStudentIdAndOsTypeAndUuid(
+                deviceUpdateOptionParamDto.getStudent().getId(),
+                deviceUpdateOptionParamDto.getOsType(),
+                deviceUpdateOptionParamDto.getUuid()
+        );
+
+        if(deviceOptional.isEmpty()){
+            log.debug("Device with osType {} and uuid {} does not exist.",
+                    deviceUpdateOptionParamDto.getOsType(),
+                    deviceUpdateOptionParamDto.getUuid());
+            throw new Exception("Device with osType and uuid does not exist.");
+        }
+        Device device = deviceOptional.get();
+
+        if(deviceUpdateOptionParamDto.getOption().equals("notice")) {
+            device.setNotice(deviceUpdateOptionParamDto.getValue() ? 1 : 0);
+        } else if(deviceUpdateOptionParamDto.getOption().equals("reserve")) {
+            device.setReserve(deviceUpdateOptionParamDto.getValue() ? 1 : 0);
+        } else if(deviceUpdateOptionParamDto.getOption().equals("lms")) {
+            device.setLms(deviceUpdateOptionParamDto.getValue() ? 1 : 0);
+        }
+
+        device.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        deviceRepository.save(device);
     }
 }

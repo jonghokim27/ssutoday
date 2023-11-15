@@ -6,7 +6,7 @@
 
 package kr.ac.ssu.ssutoday.controller.dto;
 
-import kr.ac.ssu.ssutoday.entity.Reserve;
+import kr.ac.ssu.ssutoday.vo.ReserveDetailVo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,6 +15,6 @@ import java.util.List;
 @Data
 @Builder
 public class ReserveListResponseDto {
-    List<Reserve> reserves;
-    Integer totalPages;
+    private List<ReserveDetailVo> reserves;
+    private Integer totalPages;
 }

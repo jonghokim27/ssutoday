@@ -35,4 +35,11 @@ public interface StudentService {
      */
     @NotNull
     StudentValidateReturnDto validateStudent(@NotNull StudentValidateParamDto studentValidateParamDto) throws Exception;
+
+    /**
+     * Update xnApiToken
+     * @param studentUpdateXnApiTokenParamDto update params
+     * @author jonghokim27
+     */
+    void updateXnApiToken(@NotNull StudentUpdateXnApiTokenParamDto studentUpdateXnApiTokenParamDto);
 }
