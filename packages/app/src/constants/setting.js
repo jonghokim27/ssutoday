@@ -2,7 +2,7 @@ import {Platform} from 'react-native';
 
 const API_BASE_URL = '<api base url>';
 
-const APP_VERSION = Platform.OS == 'android' ? '2.1.2' : '2.1.2';
+const APP_VERSION = Platform.OS == 'android' ? '2.3.1' : '2.3.0';
 
 const CLIENT_KEY = require("<client key path>").key;
 

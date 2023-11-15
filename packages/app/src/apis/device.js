@@ -23,4 +23,28 @@ const unregister = async (osType, uuid) => {
   );
 };
 
-export {register, unregister};
+const getOption = async (osType, uuid) => {
+  return await post(
+    'device/getOption',
+    {
+      osType,
+      uuid,
+    },
+    true,
+  )
+}
+
+const updateOption = async (osType, uuid, option, value) => {
+  return await post(
+    'device/updateOption',
+    {
+      osType,
+      uuid,
+      option,
+      value
+    },
+    true,
+  )
+}
+
+export {register, unregister, getOption, updateOption};

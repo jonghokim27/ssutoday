@@ -1,10 +1,21 @@
 import React from 'react';
 import {Component} from 'react';
-import {View, StyleSheet, ScrollView, Text, FlatList, TouchableOpacity} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import TimeBlock30 from '../../assets/svg/timeblock30.svg';
 import TimeBlock60 from '../../assets/svg/timeblock60.svg';
+import TimeBlock90 from '../../assets/svg/timeblock90.svg';
+import TimeBlock120 from '../../assets/svg/timeblock120.svg';
 import TimeBlock30My from '../../assets/svg/timeblock30my.svg';
 import TimeBlock60My from '../../assets/svg/timeblock60my.svg';
+import TimeBlock90My from '../../assets/svg/timeblock90my.svg';
+import TimeBlock120My from '../../assets/svg/timeblock120my.svg';
 import {opacity} from 'react-native-reanimated';
 import moment from 'moment';
 
@@ -19,8 +30,7 @@ class TimeTable extends Component {
   }
 
   async scrollToToday() {
-    if (!this.props.today)
-    {
+    if (!this.props.today) {
       await this.scrollView.scrollTo({
         x: 0,
         y: 0,
@@ -98,42 +108,50 @@ class TimeTable extends Component {
               );
             })}
 
-            
-
             <View
               style={[
                 styles.hiddenBar,
                 {
                   left: 30,
                   width: !this.props.today
-                    ? (this.props.after
+                    ? this.props.after
                       ? 0
-                      : 16 * 60 + 2)
-                    : ((new Date().getHours() - 6 > 16 ? 16 : new Date().getHours() - 6 ) * 60 +
-                      (new Date().getHours() - 6 > 16 ? 2 : (new Date().getMinutes() >= 30 ? 31 : 1))),
+                      : 16 * 60 + 2
+                    : (new Date().getHours() - 6 >= 16
+                        ? 16
+                        : new Date().getHours() - 6) *
+                        60 +
+                      (new Date().getHours() - 6 >= 16
+                        ? 2
+                        : new Date().getMinutes() >= 15
+                        ? (new Date().getMinutes() >= 45 ? 62 : 31)
+                        : 1),
                   height: '100%',
                 },
               ]}
             />
 
-{this.props.reserves.map((item, index) => {
-      let opacity = 1;
-      if(this.props.today){
-        opacity = (item.endBlock + 1 - 12) * 30 < ((new Date().getHours() - 6) * 60 +
-        new Date().getMinutes()) ? 0.5 : 1;
-      }else if(this.props.after){
-        opacity = 1;
-      }else{
-        opacity = 0.5;
-      }
+            {this.props.reserves.map((item, index) => {
+              let opacity = 1;
+              if (this.props.today) {
+                opacity =
+                  (item.endBlock + 1 - 12) * 30 <
+                  (new Date().getHours() - 6) * 60 + new Date().getMinutes()
+                    ? 0.5
+                    : 1;
+              } else if (this.props.after) {
+                opacity = 1;
+              } else {
+                opacity = 0.5;
+              }
 
               return (
                 <TouchableOpacity
                   key={index}
                   onPress={() => {
-                    if(item.isMine){
-                      this.navigation.push("ReserveListScreen");
-                    }else{
+                    if (item.isMine) {
+                      this.navigation.push('ReserveListScreen');
+                    } else {
                       this.props.showResvInfoModal(item, this.props.roomName);
                     }
                   }}
@@ -142,16 +160,30 @@ class TimeTable extends Component {
                     {left: 30 + (item.startBlock - 12) * 30 + 1},
                   ]}>
                   {item.endBlock - item.startBlock == 0 && !item.isMine && (
-                    <TimeBlock30 style={{opacity: opacity}}/>
+                    <TimeBlock30 style={{opacity: opacity, marginBottom: 1}} />
                   )}
                   {item.endBlock - item.startBlock == 1 && !item.isMine && (
                     <TimeBlock60 style={{opacity: opacity}} />
                   )}
+                  {item.endBlock - item.startBlock == 2 && !item.isMine && (
+                    <TimeBlock90 style={{opacity: opacity, marginBottom: 1}} />
+                  )}
+                  {item.endBlock - item.startBlock == 3 && !item.isMine && (
+                    <TimeBlock120 style={{opacity: opacity, marginBottom: 1}} />
+                  )}
                   {item.endBlock - item.startBlock == 0 && item.isMine && (
-                    <TimeBlock30My style={{opacity: opacity}}/>
+                    <TimeBlock30My
+                      style={{opacity: opacity, marginBottom: 1}}
+                    />
                   )}
                   {item.endBlock - item.startBlock == 1 && item.isMine && (
-                    <TimeBlock60My style={{opacity: opacity}}/>
+                    <TimeBlock60My style={{opacity: opacity}} />
+                  )}
+                  {item.endBlock - item.startBlock == 2 && item.isMine && (
+                    <TimeBlock90My style={{opacity: opacity, marginBottom: 1}} />
+                  )}
+                  {item.endBlock - item.startBlock == 3 && item.isMine && (
+                    <TimeBlock120My style={{opacity: opacity, marginBottom: 1}} />
                   )}
                 </TouchableOpacity>
               );

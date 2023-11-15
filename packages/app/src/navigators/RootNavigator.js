@@ -6,6 +6,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import NoticeNavigator from './NoticeNavigator';
 import MyNavigator from './MyNavigator';
 import ReserveNavigator from './ReserveNavigator';
+import LMSNavigator from './LMSNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,6 +22,7 @@ const RootNavigator = () => {
       <Tab.Screen name="LoginNavigator" component={LoginNavigator} />
       <Tab.Screen name="NoticeNavigator" component={NoticeNavigator} />
       <Tab.Screen name="ReserveNavigator" component={ReserveNavigator} />
+      <Tab.Screen name="LMSNavigator" component={LMSNavigator} />
       <Tab.Screen name="MyNavigator" component={MyNavigator} />
     </Tab.Navigator>
   );

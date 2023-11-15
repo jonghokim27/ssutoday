@@ -12,7 +12,7 @@ class Loading extends Component {
   }
 
   show = () => {
-    this.setState({show: true});
+    this.setState({show: true, message: ''});
   };
 
   hide = () => {

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         : size.STATUSBAR_HEIGHT + 10,
     paddingLeft: 24,
     paddingRight: 14,
-    backgroundColor: '#F8F8FA',
+    backgroundColor: 'white',
     // borderWidth: 1
   },
   logoText: {

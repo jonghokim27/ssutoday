@@ -2,8 +2,8 @@ import axios from 'axios';
 import {API_BASE_URL, CLIENT_KEY} from '../constants/setting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const makeHeaders = async (authRequired) => {
-  if(authRequired){
+const makeHeaders = async authRequired => {
+  if (authRequired) {
     let accessToken = await AsyncStorage.getItem('accessToken');
     let refreshToken = await AsyncStorage.getItem('refreshToken');
 
@@ -17,11 +17,11 @@ const makeHeaders = async (authRequired) => {
     return {
       Authorization: 'Bearer ' + accessToken,
       'Refresh-Token': refreshToken,
-      'Client-Key': CLIENT_KEY
+      'Client-Key': CLIENT_KEY,
     };
   } else {
     return {
-      'Client-Key': CLIENT_KEY
+      'Client-Key': CLIENT_KEY,
     };
   }
 };
@@ -36,9 +36,12 @@ const refreshToken = async headers => {
   }
 };
 
-const post = async (uri, body, authRequired) => {
+const post = async (uri, body, authRequired, isMultipart = false) => {
   try {
     let headers = await makeHeaders(authRequired);
+    if(isMultipart){
+      headers['Content-Type'] = "multipart/form-data";
+    }
 
     let response = await axios.post(API_BASE_URL + uri, body, {
       headers: headers,
@@ -76,4 +79,4 @@ const post = async (uri, body, authRequired) => {
   }
 };
 
-export {post};
+export {makeHeaders, post}

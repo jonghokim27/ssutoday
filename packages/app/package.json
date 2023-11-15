@@ -6,13 +6,18 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "codepush-ios": "appcenter codepush release-react -a jonghokim27/ssutoday-ios -d Staging",
+    "codepush-android": "appcenter codepush release-react -a jonghokim27/ssutoday-android -d Staging",
     "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@likashefqet/react-native-image-zoom": "^2.1.1",
     "@notifee/react-native": "^7.8.0",
     "@react-native-async-storage/async-storage": "^1.19.1",
     "@react-native-community/netinfo": "^9.4.1",
+    "@react-native-cookies/cookies": "^6.2.1",
+    "@react-native-firebase/analytics": "^18.3.1",
     "@react-native-firebase/app": "^18.3.1",
     "@react-native-firebase/messaging": "^18.3.1",
     "@react-navigation/bottom-tabs": "^6.5.8",
@@ -24,6 +29,7 @@
     "moment": "^2.29.4",
     "react": "17.0.2",
     "react-native": "0.68.2",
+    "react-native-code-push": "^7.1.0",
     "react-native-date-picker": "^4.2.14",
     "react-native-device-info": "^10.8.0",
     "react-native-fast-image": "^8.6.3",
@@ -36,7 +42,8 @@
     "react-native-screens": "^3.23.0",
     "react-native-shadow-2": "^7.0.8",
     "react-native-svg": "^13.13.0",
-    "react-native-webview": "^13.4.0",
+    "react-native-vision-camera": "^2.16.5",
+    "react-native-webview": "^13.6.2",
     "react-native-wheely": "^0.6.0"
   },
   "devDependencies": {

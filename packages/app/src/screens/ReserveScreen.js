@@ -33,7 +33,8 @@ import moment from 'moment';
 import FastImage from 'react-native-fast-image';
 import Right from '../../assets/svg/right.svg';
 import List from '../../assets/svg/list.svg';
-import { generateToken } from '../apis/sso';
+import {generateToken} from '../apis/sso';
+import Null from '../../assets/svg/null.svg';
 
 class ReserveScreen extends Component {
   constructor(props) {
@@ -134,55 +135,86 @@ class ReserveScreen extends Component {
     }
   }
 
-  showResvInfoModal(reserve, roomName){
+  showResvInfoModal(reserve, roomName) {
     let startTime = reserve.startBlock * 30;
-      let startHour = Math.floor(startTime / 60);
-      let startMin = startTime % 60;
-      let endTime = (reserve.endBlock + 1) * 30;
-      let endHour = Math.floor(endTime / 60);
-      let endMin = endTime % 60;
+    let startHour = Math.floor(startTime / 60);
+    let startMin = startTime % 60;
+    let endTime = (reserve.endBlock + 1) * 30;
+    let endHour = Math.floor(endTime / 60);
+    let endMin = endTime % 60;
 
-      let selectedTime =
-          (startHour < 10 ? '0' : '') +
-          startHour +
-          ':' +
-          (startMin < 10 ? '0' : '') +
-          startMin +
-          ' ~ ' +
-          (endHour < 10 ? '0' : '') +
-          endHour +
-          ':' +
-          (endMin < 10 ? '0' : '') +
-          endMin +
-          '';
-      
-        if(reserve.endBlock - reserve.startBlock == 1)
-          selectedTime += " (1시간)";
-        else
-          selectedTime += " (30분)";
+    let selectedTime =
+      (startHour < 10 ? '0' : '') +
+      startHour +
+      ':' +
+      (startMin < 10 ? '0' : '') +
+      startMin +
+      ' ~ ' +
+      (endHour < 10 ? '0' : '') +
+      endHour +
+      ':' +
+      (endMin < 10 ? '0' : '') +
+      endMin +
+      '';
 
-    let reportLink = "https://docs.google.com/forms/d/e/1FAIpQLSeCYo0oiuoK-3KNzKFnFLPFP43Bp4fRZq7ulTmxgoMUWGWz8g/viewform?usp=pp_url";
-    reportLink += "&entry.284506795=" + encodeURIComponent(roomName).replace("%20", "+");
-    reportLink += "&entry.46856824=" + encodeURIComponent((moment(this.state.date).format('YYYY년 M월 D일') +
-    '(' +
-    dayOfWeekHan(this.state.date.getDay()) +
-    ')')).replace("%20", "+");
-    reportLink += "&entry.573216846=" + encodeURIComponent(selectedTime).replace("%20","+");
-    this.qswal.show("info", "예약 정보", "시설명: " + roomName + "\n날짜: " + moment(this.state.date).format('YYYY년 M월 D일') +
-    '(' +
-    dayOfWeekHan(this.state.date.getDay()) +
-    ')' + "\n시간: "+ selectedTime +"\n예약자: " + reserve.studentInfo, "닫기", () => this.qswal.hide(), "신고하기", () => {this.qswal.hide(); this.navigation.push("ReserveReportScreen", {
-      url: reportLink
-    })});
+      if (reserve.endBlock - reserve.startBlock == 0) {
+        selectedTime += ' (30분)';
+      } else if(reserve.endBlock - reserve.startBlock == 1){
+        selectedTime += ' (1시간)';
+      } else if(reserve.endBlock - reserve.startBlock == 2){
+        selectedTime += ' (1시간 30분)';
+      } else if(reserve.endBlock - reserve.startBlock == 3){
+        selectedTime += ' (2시간)';
+      }
+
+    let reportLink =
+      'https://docs.google.com/forms/d/e/1FAIpQLSeCYo0oiuoK-3KNzKFnFLPFP43Bp4fRZq7ulTmxgoMUWGWz8g/viewform?usp=pp_url';
+    reportLink +=
+      '&entry.284506795=' + encodeURIComponent(roomName).replace('%20', '+');
+    reportLink +=
+      '&entry.46856824=' +
+      encodeURIComponent(
+        moment(this.state.date).format('YYYY년 M월 D일') +
+          '(' +
+          dayOfWeekHan(this.state.date.getDay()) +
+          ')',
+      ).replace('%20', '+');
+    reportLink +=
+      '&entry.573216846=' +
+      encodeURIComponent(selectedTime).replace('%20', '+');
+    this.qswal.show(
+      'info',
+      '예약 정보',
+      '시설명: ' +
+        roomName +
+        '\n날짜: ' +
+        moment(this.state.date).format('YYYY년 M월 D일') +
+        '(' +
+        dayOfWeekHan(this.state.date.getDay()) +
+        ')' +
+        '\n시간: ' +
+        selectedTime +
+        '\n예약자: ' +
+        reserve.studentInfo,
+      '닫기',
+      () => this.qswal.hide(),
+      '신고하기',
+      () => {
+        this.qswal.hide();
+        this.navigation.push('ReserveReportScreen', {
+          url: reportLink,
+        });
+      },
+    );
   }
 
-  async loadLocker(){
+  async loadLocker() {
     this.setState({
-      typeModalOpen: false
+      typeModalOpen: false,
     });
     this.loading.show();
 
-    let generateTokenRes = await generateToken("itlocker");
+    let generateTokenRes = await generateToken('itlocker');
     if (generateTokenRes.statusCode == 'SSU0000') {
       this.loading.hide();
       this.swal.show(
@@ -199,8 +231,8 @@ class ReserveScreen extends Component {
       this.loading.hide();
       let ssoToken = generateTokenRes.data.ssoToken;
       let callback = generateTokenRes.data.callbackUrl + ssoToken;
-      this.navigation.push("ReserveLockerScreen", {
-        url: callback
+      this.navigation.push('ReserveLockerScreen', {
+        url: callback,
       });
       return;
     } else {
@@ -209,7 +241,7 @@ class ReserveScreen extends Component {
         'error',
         '서버 연결 실패',
         '알 수 없는 오류가 발생했어요.\n잠시 후 다시 시도해 주세요.\n\n오류 코드: ' +
-        generateTokenRes.statusCode,
+          generateTokenRes.statusCode,
         '확인',
         async () => {
           this.swal.hide();
@@ -217,7 +249,6 @@ class ReserveScreen extends Component {
       );
       return;
     }
-
   }
 
   render() {
@@ -327,7 +358,7 @@ class ReserveScreen extends Component {
             </View>
           </View>
 
-          <ScrollView style={styles.roomScrollView} bounces={false}>
+          <ScrollView style={styles.roomScrollView} bounces={true}>
             {this.state.rooms.map((item, index) => {
               return (
                 <View style={styles.roomItemView} key={index}>
@@ -393,6 +424,12 @@ class ReserveScreen extends Component {
                 </View>
               );
             })}
+          {
+              this.state.rooms.length == 0 && <View style={{alignItems: "center", marginTop: "30%"}}>
+                <Null height={40} width={40}></Null>
+                <Text style={styles.nullText}>예약할 수 있는{"\n"}스터디룸이 없어요.</Text>
+              </View>
+            }
           </ScrollView>
         </View>
         <Footer menu={2} navigation={this.navigation} />
@@ -415,6 +452,13 @@ class ReserveScreen extends Component {
 }
 
 const styles = StyleSheet.create({
+  nullText: {
+    textAlign: "center",
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 16,
+    color: '#797979',
+    marginTop: 5
+  },
   modalItemTitle: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 18,
@@ -457,7 +501,7 @@ const styles = StyleSheet.create({
   },
   mainView: {
     flex: 1,
-    backgroundColor: '#F8F8FA',
+    backgroundColor: 'white',
   },
   containerView: {
     flex: 1,
@@ -514,9 +558,9 @@ const styles = StyleSheet.create({
   },
   roomItemView: {
     width: '100%',
-    borderRadius: 10,
+    borderRadius: 8,
     overflow: 'hidden',
-    borderWidth: 0.4,
+    borderWidth: 0.6,
     borderColor: '#DFDFDF',
     marginBottom: 13,
   },
@@ -525,7 +569,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#white',
     paddingLeft: 16,
     paddingRight: 16,
-    paddingTop: 8,
+    paddingTop: 14,
     paddingBottom: 8,
     flexDirection: 'row',
   },
@@ -544,7 +588,7 @@ const styles = StyleSheet.create({
   roomItemImage: {
     height: 50,
     width: 50,
-    borderRadius: 10
+    borderRadius: 10,
   },
   roomItemRightView: {
     // borderWidth: 1,

@@ -27,11 +27,9 @@ class ReserveLockerScreen extends Component {
     };
   }
 
-  componentWillUnmount() {
-  }
+  componentWillUnmount() {}
 
-  async componentDidMount() {
-  }
+  async componentDidMount() {}
 
   render() {
     return (
@@ -45,15 +43,15 @@ class ReserveLockerScreen extends Component {
           </TouchableOpacity>
           <Text style={styles.titleText}>사물함 예약</Text>
         </View>
-          <WebView
-            ref={ref => (this.webView = ref)}
-            style={styles.webView}
-            startInLoadingState={true}
-            renderLoading={() => <Loading init={true} />}
-            source={{
-              uri: this.state.url,
-            }}
-          />
+        <WebView
+          ref={ref => (this.webView = ref)}
+          style={styles.webView}
+          startInLoadingState={true}
+          renderLoading={() => <Loading init={true} />}
+          source={{
+            uri: this.state.url,
+          }}
+        />
       </View>
     );
   }

@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
+  Animated,
 } from 'react-native';
 
 import Loading from '../components/Loading';
@@ -25,7 +26,7 @@ import moment from 'moment';
 import {dayOfWeekHan} from '../constants/function';
 import BottomSafe from '../components/BottomSafe';
 import Top from '../../assets/svg/top.svg';
-
+import Null from '../../assets/svg/null.svg';
 
 class ReserveListScreen extends Component {
   constructor(props) {
@@ -40,10 +41,12 @@ class ReserveListScreen extends Component {
       reserves: [],
       refreshing: false,
       isTopButtonVisible: false,
+      blink: new Animated.Value(1)
     };
   }
 
   async setMenu(val) {
+    this.page = 0;
     this.setState({
       menu: val,
       reserves: [],
@@ -145,7 +148,10 @@ class ReserveListScreen extends Component {
     }
     this.moreLoading = true;
     this.isRendering = true;
-    this.isRenderingTimeout = setTimeout(() => this.isRendering = false, 1000);
+    this.isRenderingTimeout = setTimeout(
+      () => (this.isRendering = false),
+      1000,
+    );
     this.loading.show();
 
     this.page = this.page + 1;
@@ -154,7 +160,7 @@ class ReserveListScreen extends Component {
     let reserves = this.state.reserves.slice(0);
     if (listRes.statusCode == 'SSU2130') {
       this.setState({
-        reserves: []
+        reserves: [],
       });
 
       reserves.push(...listRes.data.reserves);
@@ -192,13 +198,37 @@ class ReserveListScreen extends Component {
 
   async componentDidMount() {
     await this.getList();
+    this.animation();
+    setInterval(() => this.animation(), 1500);
+    this.willFocusSubscription = this.navigation.addListener('focus', () => {
+      this.refresh();
+    });
+  }
+  
+  sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async animation() {
+    Animated.timing(this.state.blink, {
+      toValue: 0,
+      duration: 750,
+      useNativeDriver: true,
+    }).start();
+    await this.sleep(750);
+    Animated.timing(this.state.blink, {
+      toValue: 1,
+      duration: 750,
+      useNativeDriver: true,
+    }).start();
+    await this.sleep(750);
   }
 
   async cancel(idx, index) {
     this.loading.show();
 
     let cancelRes = await cancel(idx);
-    if (cancelRes.statusCode == 'SSU2140'){
+    if (cancelRes.statusCode == 'SSU2140') {
       let reserves = this.state.reserves;
       reserves[index].deletedAt = new Date();
       this.setState({
@@ -209,7 +239,7 @@ class ReserveListScreen extends Component {
       this.swal.show(
         'success',
         '취소 성공',
-        '성공적으로 예약을 취소했습니다.',
+        '성공적으로 예약을 취소했어요.',
         '확인',
         async () => {
           this.swal.hide();
@@ -221,7 +251,7 @@ class ReserveListScreen extends Component {
       this.swal.show(
         'error',
         '취소 실패',
-        '이미 지난 날짜입니다.',
+        '이미 이용이 완료된 예약이에요.',
         '확인',
         async () => {
           this.swal.hide();
@@ -233,7 +263,7 @@ class ReserveListScreen extends Component {
       this.swal.show(
         'error',
         '취소 실패',
-        '현재 이용중인 예약입니다.',
+        '이미 이용이 완료된 예약이에요.',
         '확인',
         async () => {
           this.swal.hide();
@@ -245,7 +275,7 @@ class ReserveListScreen extends Component {
       this.swal.show(
         'error',
         '취소 실패',
-        '이미 이용이 완료된 예약입니다.',
+        '현재 이용중인 예약이에요.',
         '확인',
         async () => {
           this.swal.hide();
@@ -258,6 +288,19 @@ class ReserveListScreen extends Component {
         'error',
         '서버 연결 실패',
         '서버에 연결할 수 없어요.\n잠시 후 다시 시도해 주세요.',
+        '확인',
+        async () => {
+          this.swal.hide();
+        },
+      );
+      return;
+    } else {
+      this.loading.hide();
+      this.swal.show(
+        'error',
+        '서버 연결 실패',
+        '알 수 없는 오류가 발생했어요.\n잠시 후 다시 시도해 주세요.\n\n오류 코드: ' +
+        cancelRes.statusCode,
         '확인',
         async () => {
           this.swal.hide();
@@ -291,13 +334,15 @@ class ReserveListScreen extends Component {
       endMin +
       ' ';
 
-    if (
-      this.state.reserves[index].endBlock -
-        this.state.reserves[index].startBlock ==
-      1
-    )
+    if (this.state.reserves[index].endBlock - this.state.reserves[index].startBlock == 1) {
       selectedTime += '(1시간)';
-    else selectedTime += '(30분)';
+    } else if(this.state.reserves[index].endBlock - this.state.reserves[index].startBlock == 0){
+      selectedTime += '(30분)';
+    } else if(this.state.reserves[index].endBlock - this.state.reserves[index].startBlock == 2){
+      selectedTime += '(1시간 30분)';
+    } else if(this.state.reserves[index].endBlock - this.state.reserves[index].startBlock == 3){
+      selectedTime += '(2시간)';
+    }
 
     let date = new Date(this.state.reserves[index].date);
     let dateText =
@@ -306,7 +351,23 @@ class ReserveListScreen extends Component {
       dayOfWeekHan(date.getDay()) +
       ')';
 
-    this.qswal.show('warning', '확인 필요', '정말 아래 내용의 예약을\n취소하시겠습니까?\n\n시설명: '+this.state.reserves[index].roomByRoomNo.name + "\n날짜: " + dateText + "\n시간: " + selectedTime, '확인', () => {this.qswal.hide(); this.cancel(idx, index);}, '취소', () => this.qswal.hide());
+    this.qswal.show(
+      'warning',
+      '확인 필요',
+      '정말 아래 내용의 예약을 취소할까요?\n\n시설명: ' +
+        this.state.reserves[index].roomByRoomNo.name +
+        '\n날짜: ' +
+        dateText +
+        '\n시간: ' +
+        selectedTime,
+      '확인',
+      () => {
+        this.qswal.hide();
+        this.cancel(idx, index);
+      },
+      '취소',
+      () => this.qswal.hide(),
+    );
   }
 
   isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
@@ -387,8 +448,8 @@ class ReserveListScreen extends Component {
           }}
           scrollEventThrottle={600}>
           {this.state.reserves.map((item, index) => {
-            console.log(item.idx);
-            
+            // console.log(item.idx);
+
             let startTime = item.startBlock * 30;
             let startHour = Math.floor(startTime / 60);
             let startMin = startTime % 60;
@@ -410,15 +471,22 @@ class ReserveListScreen extends Component {
               endMin +
               '';
 
-            if (item.endBlock - item.startBlock == 1)
-              {time += " (1시간)";}
-            else time += ' (30분)';
+            if (item.endBlock - item.startBlock == 1) {
+              time += ' (1시간)';
+            } else if(item.endBlock - item.startBlock == 0) {
+              time += ' (30분)';
+            } else if(item.endBlock - item.startBlock == 2) {
+              time += ' (1시간 30분)';
+            } else if(item.endBlock - item.startBlock == 3) {
+              time += ' (2시간)';
+            }
 
             let date = new Date(item.date);
             let dateText =
               moment(date).format('YYYY년 M월 D일') +
               '(' +
-              dayOfWeekHan(date.getDay()) + ')';
+              dayOfWeekHan(date.getDay()) +
+              ')';
 
             let start = new Date(item.date);
             start.setHours(startHour);
@@ -433,35 +501,32 @@ class ReserveListScreen extends Component {
             let type;
 
             //취소됨
-            if (item.deletedAt != null){
+            if (item.deletedAt != null) {
               type = -1;
             }
             //이용 전
-            else if (moment(now).isBefore(start)){
+            else if (moment(now).isBefore(start)) {
               type = 0;
             }
             //이용 중
-            else if (moment(now).isBefore(end)){
+            else if (moment(now).isBefore(end)) {
               type = 1;
             }
             //이용 후
-            else if (moment(now).isAfter(end)){
+            else if (moment(now).isAfter(end)) {
               type = 2;
             }
 
             return (
               <View style={styles.cardView} key={item.idx}>
-                <View style={{flexDirection: 'row', marginBottom: 5}}>
+                <View style={{flexDirection: 'row', marginBottom: 5, paddingLeft: 16, paddingRight: 16}}>
                   <View style={{flex: 1}}>
                     <Text style={styles.cardTitle}>
-                      {item.roomByRoomNo.name}
+                      📒  {dateText}
                     </Text>
                   </View>
-                  <View style={{alignItems: 'flex-end'}}>
-                    <Text style={styles.cardDate}>{dateText}</Text>
-                  </View>
                 </View>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', paddingLeft: 16, paddingRight: 16}}>
                   <View style={{flex: 1}}>
                     <View style={{flexDirection: 'row'}}>
                       <View
@@ -471,57 +536,175 @@ class ReserveListScreen extends Component {
                           alignItems: 'center',
                         }}>
                         <View
-                          style={{justifyContent: 'center', marginBottom: 1}}>
-                          <ClockTime />
+                          style={{justifyContent: 'center', marginBottom: 1, marginRight: 3}}>
+                           <Text style={styles.cardSubtitle}>시설명</Text>
                         </View>
-                        <Text style={styles.cardSubtitle}>{time}</Text>
+                        <Text style={[styles.cardSubtitle, {color: "black"}]}>{item.roomByRoomNo.name}</Text>
                       </View>
-                      <View style={{alignItems: 'flex-end'}}>
-                        {type == -1 && (
-                          <View style={styles.cancelDoneBtnView}>
-                            <Text style={styles.cancelDoneBtnText}>취소됨</Text>
-                          </View>
-                        )}
-                        {type == 0 && (
-                          <TouchableOpacity
-                            style={styles.cancelBtnView}
-                            onPress={() => this.cancelAsk(item.idx, index)}>
-                            <Text style={styles.btnText}>취소</Text>
-                          </TouchableOpacity>
-                        )}
-                        {type == 1 && (
-                          <View style={styles.primaryBtnView}>
-                            <Text style={styles.btnText}>이용중</Text>
-                          </View>
-                        )}
-                        {type == 2 && (
-                          <View style={styles.secondaryBtnView}>
-                            <Text style={styles.btnText}>이용완료</Text>
-                          </View>
-                        )}
-                      </View>
+
                     </View>
                   </View>
+                </View>
+                <View style={{flexDirection: 'row', paddingLeft: 16, paddingRight: 16}}>
+                  <View style={{flex: 1}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          flex: 1,
+                          alignItems: 'center',
+                        }}>
+                        <View
+                          style={{justifyContent: 'center', marginBottom: 1, marginRight: 3}}>
+                           <Text style={styles.cardSubtitle}>이용 시간</Text>
+                        </View>
+                        <Text style={[styles.cardSubtitle, {color: "black"}]}>{time}</Text>
+                      </View>
+
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.divider}></View>
+                <View style={styles.menuView}>
+                  {type == -1 && (
+                    <View style={styles.menuItem}>
+                      <Text style={[styles.menuItemText, {color: 'red'}]}>취소됨</Text>
+                      <Text style={styles.menuItemTextSmall}>{moment(item.deletedAt).format("YYYY.MM.DD HH:mm:ss")}</Text>
+                    </View>
+                  )}
+                  {type == 0 && (
+                    <View style={styles.menuItem}>
+                      <Text style={[styles.menuItemText, {color: '#6b6b6b'}]}>이용 대기</Text>
+                    </View>
+                  )}
+                  {type == 1 && (
+                    <View style={styles.menuItem}>
+                      <Text style={[styles.menuItemText, {color: '#0356fc'}]}>이용중</Text>
+                    </View>
+                  )}
+                  {type == 2 && (
+                    <View style={styles.menuItem}>
+                      <Text style={[styles.menuItemText, {color: 'green'}]}>이용완료</Text>
+                    </View>
+                  )}
+                  <View style={styles.verticalDivider}></View>
+                  {type == -1 && (
+                    <TouchableOpacity style={styles.menuItem} onPress={() => this.navigation.replace('ReserveRoomScreen', {
+                      date: date,
+                      roomNo: item.roomNo,
+                    })}>
+                      <Text style={styles.menuItemText}>다시 예약하기</Text>
+                    </TouchableOpacity>
+                  )}
+                  {type == 0 && (
+                    <TouchableOpacity style={styles.menuItem} onPress={() => this.cancelAsk(item.idx, index)}>
+                      <Text style={[styles.menuItemText, {color: 'red'}]}>취소하기</Text>
+                    </TouchableOpacity>
+                  )}
+                  {type == 1 && item.verifyPhotosByIdx.length == 0 && !item.isContinuous && (
+                    <TouchableOpacity style={styles.menuItem} onPress={() => this.navigation.push('ReservePhotoShootScreen', {
+                      idx: item.idx,
+                      name: item.roomByRoomNo.name,
+                      time: time,
+                      date: dateText
+                    })}>
+                      <Animated.View style={{flexDirection: "row", opacity: this.state.blink}}>
+                        <Text style={[styles.menuItemText, {fontWeight: '700', color: 'black'}]}>
+                          인증샷 촬영
+                        </Text>
+                        <View style={{marginLeft: 1, backgroundColor: 'red', width: 5, height: 5, borderRadius: 5}}></View>
+                      </Animated.View>
+                      <Text style={styles.menuItemTextSmall}>촬영 기한: {moment(item.createdAt).isAfter(start) ? moment(new Date(item.createdAt).getTime() + 10 * 60 * 1000).format("HH:mm") : moment(start.getTime() + 10 * 60 * 1000).format("HH:mm")} 까지</Text>
+                    </TouchableOpacity>
+                  )}
+                  {type == 1 && item.verifyPhotosByIdx.length == 0 && item.isContinuous && (
+                    <View style={styles.menuItem}>
+                      <Text style={styles.menuItemText}>인증샷 촬영</Text>
+                      <Text style={styles.menuItemTextSmall}>촬영이 면제됨</Text>
+                    </View>
+                  )}
+                  {(type == 2 || type == 1) && item.verifyPhotosByIdx.length != 0 && (
+                    <TouchableOpacity style={styles.menuItem} onPress={() => this.navigation.push('ReservePhotoViewScreen', {
+                      url: item.verifyPhotosByIdx[0].url
+                    })}>
+                      <Text style={styles.menuItemText}>인증샷 보기</Text>
+                      <Text style={styles.menuItemTextSmall}>{moment(item.verifyPhotosByIdx[0].createdAt).format("YYYY.MM.DD HH:mm:ss")}</Text>
+                    </TouchableOpacity>
+                  )}
+                  {type == 2 && item.verifyPhotosByIdx.length == 0 && (
+                    <View style={styles.menuItem}>
+                      <Text style={styles.menuItemText}>인증샷 보기</Text>
+                      <Text style={styles.menuItemTextSmall}>촬영되지 않음</Text>
+                    </View>
+                  )}
                 </View>
               </View>
             );
           })}
-          <View style={{height: 30}} />
-          <BottomSafe />
+            {
+              this.state.reserves.length == 0 && <View style={{alignItems: "center", marginTop: "40%"}}>
+                <Null height={40} width={40}></Null>
+                <Text style={styles.nullText}>예약 내역이 없어요.</Text>
+              </View>
+            }
+          <View style={{height: 30, backgroundColor: '#F5F6F8'}} />
+          <BottomSafe backgroundColor={"#F5F6F8"}/>
         </ScrollView>
         {this.state.isTopButtonVisible && (
-            <TouchableOpacity
-              style={{position: 'absolute', bottom: 30, right: 0}}
-              onPress={() => this.scrollView.scrollTo({y: 0, animated: true})}>
-              <Top />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={{position: 'absolute', bottom: 30, right: 0}}
+            onPress={() => this.scrollView.scrollTo({y: 0, animated: true})}>
+            <Top />
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  nullText: {
+    textAlign: "center",
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 16,
+    color: '#797979',
+    marginTop: 5
+  },
+  divider: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "gray",
+    opacity: 0.2,
+    marginTop: 16
+  },
+  verticalDivider: {
+    backgroundColor: 'gray',
+    width: '0.3%',
+    opacity: 0.2
+  },
+  menuView: {
+    width: '100%',
+    height: 50,
+    flexDirection: "row"
+  },
+  menuItem: {
+    width: '49.4%',
+    justifyContent: "center",
+    alignItems: "center",
+    height: '100%'
+  },
+  menuItemText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    fontWeight: "600",
+    color: 'gray'
+  },
+  menuItemTextSmall: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 10,
+    color: 'gray',
+    textAlign: 'center'
+  },
   dateText: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
@@ -533,11 +716,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   containerView: {
+    backgroundColor: "#F5F6F8",
     paddingTop: 20,
     flex: 1,
     width: '100%',
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingLeft: 18,
+    paddingRight: 18,
   },
   headerView:
     Platform.OS == 'ios'
@@ -622,15 +806,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 17,
     paddingTop: 16,
-    paddingBottom: 16,
-    paddingLeft: 20,
-    paddingRight: 20,
+    // paddingBottom: 16,
     marginBottom: 10,
   },
   cardTitle: {
     color: 'black',
     fontFamily: 'Pretendard-Bold',
-    fontSize: 21,
+    fontWeight: "700",
+    fontSize: 16,
   },
   cardDate: {
     color: '#ADADAD',
@@ -639,8 +822,8 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     color: '#A6A6A6',
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 15,
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 13,
     marginLeft: 3,
     flex: 1,
   },
