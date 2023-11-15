@@ -35,6 +35,12 @@ public class Student {
     @Column(name = "major", nullable = false, length = 10)
     private String major;
     @Basic
+    @Column(name = "xnApiToken", nullable = true, length = 500)
+    private String xnApiToken;
+    @Basic
+    @Column(name = "isAdmin", nullable = false)
+    private Integer isAdmin;
+    @Basic
     @Column(name = "createdAt", nullable = false)
     private Timestamp createdAt;
     @Basic

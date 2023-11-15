@@ -26,7 +26,7 @@ public class Article {
     private Integer idx;
     @Basic
     @Column(name = "provider", nullable = false)
-    private Integer provider;
+    private String provider;
     @Basic
     @Column(name = "articleNo", nullable = false, length = 200)
     private String articleNo;

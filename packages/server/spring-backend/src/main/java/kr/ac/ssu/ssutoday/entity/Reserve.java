@@ -6,14 +6,18 @@
 
 package kr.ac.ssu.ssutoday.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import kr.ac.ssu.ssutoday.vo.ReserveDetailVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 @Entity
 @Builder
@@ -52,4 +56,22 @@ public class Reserve {
     @ManyToOne
     @JoinColumn(name = "roomNo", referencedColumnName = "no", nullable = false, insertable = false, updatable = false)
     private Room roomByRoomNo;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "reserveByReserveIdx", fetch = FetchType.LAZY)
+    private Collection<VerifyPhoto> verifyPhotosByIdx;
+
+    @NotNull
+    public ReserveDetailVo toReserveDetailVo(){
+        return ReserveDetailVo.builder()
+                .idx(this.idx)
+                .roomNo(this.roomNo)
+                .date(this.date)
+                .startBlock(this.startBlock)
+                .endBlock(this.endBlock)
+                .createdAt(this.createdAt)
+                .deletedAt(this.deletedAt)
+                .roomByRoomNo(this.roomByRoomNo)
+                .verifyPhotosByIdx(this.verifyPhotosByIdx)
+                .build();
+    }
 }

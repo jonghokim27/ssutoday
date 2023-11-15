@@ -17,8 +17,8 @@ import java.util.List;
 @Data
 @Builder
 public class ArticleListReturnDto {
-    List<Article> articles;
-    Integer totalPages;
+    private List<Article> articles;
+    private Integer totalPages;
 
     @NotNull
     public ArticleListResponseDto toArticleListResponseDto(){

@@ -13,5 +13,5 @@ import lombok.Data;
 @Data
 @Builder
 public class ArticleGetResponseDto {
-    Article article;
+    private Article article;
 }

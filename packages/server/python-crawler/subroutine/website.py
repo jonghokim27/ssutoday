@@ -4,6 +4,9 @@ from subroutine.template.sw import *
 from subroutine.template.ssuCatch import *
 from subroutine.template.stu import *
 from subroutine.template.media import *
+from subroutine.template.infocom import *
+from subroutine.template.aix import *
+
 import traceback
 
 def website(DB):
@@ -20,6 +23,10 @@ def website(DB):
         articles += sw()
         print("[INFO] Using MEDIA Template")
         articles += media()
+        print("[INFO] Using INFOCOM Template")
+        articles += infocom()
+        print("[INFO] Using AIX Template")
+        articles += aix()
         
         print("[INFO] Connecting DB")
         db = DB()

@@ -63,6 +63,7 @@ public class RoomController {
         RoomGetParamDto roomGetParamDto = RoomGetParamDto.builder()
                 .roomNo(roomGetRequestDto.getRoomNo())
                 .major(student.getMajor())
+                .isAdmin(student.getIsAdmin() == 1)
                 .build();
         RoomGetReturnDto roomGetReturnDto = roomService.roomGet(roomGetParamDto);
 
@@ -70,7 +71,7 @@ public class RoomController {
             return new CommonResponse(statusCode.SSU4000, null, statusCode.SSU4000_MSG);
         }
 
-        RoomReserveListReturnDto roomReserveListReturnDto = reserveService.roomReserveList(roomGetRequestDto.toRoomReserveListParamDto(student.getId()));
+        RoomReserveListReturnDto roomReserveListReturnDto = reserveService.roomReserveList(roomGetRequestDto.toRoomReserveListParamDto(student.getId(), student.getIsAdmin() == 1));
         RoomVo roomVo = roomGetReturnDto.getRoom().get().toRoomVo(roomReserveListReturnDto.getReserves());
 
         RoomGetResponseDto roomGetResponseDto = RoomGetResponseDto.builder()
@@ -96,12 +97,13 @@ public class RoomController {
 
         RoomListParamDto roomListParamDto = RoomListParamDto.builder()
                 .major(student.getMajor())
+                .isAdmin(student.getIsAdmin() == 1)
                 .build();
         RoomListReturnDto roomListReturnDto = roomService.roomList(roomListParamDto);
 
         List<RoomVo> roomVoList = new ArrayList<>();
         for(Room room : roomListReturnDto.getRooms()){
-            RoomReserveListReturnDto roomReserveListReturnDto = reserveService.roomReserveList(roomListRequestDto.toRoomReserveListParamDto(student.getId(), room.getNo()));
+            RoomReserveListReturnDto roomReserveListReturnDto = reserveService.roomReserveList(roomListRequestDto.toRoomReserveListParamDto(student.getId(), student.getIsAdmin() == 1, room.getNo()));
             RoomVo roomVo = room.toRoomVo(roomReserveListReturnDto.getReserves());
             roomVoList.add(roomVo);
         }

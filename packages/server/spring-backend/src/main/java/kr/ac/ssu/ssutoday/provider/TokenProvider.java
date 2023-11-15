@@ -64,7 +64,7 @@ public class TokenProvider {
      * @author jonghokim27
      */
     @Nullable
-    public String generateRandomHashToken() {
+    public String generateRandomHashToken(Integer length) {
         try {
             final String chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+[]()|`~";
 
@@ -81,6 +81,8 @@ public class TokenProvider {
             digest.reset();
             digest.update(randomString.getBytes(StandardCharsets.UTF_8));
             token = String.format("%0128x", new BigInteger(1, digest.digest()));
+
+            token = token.substring(0, length);
 
             return token;
         }

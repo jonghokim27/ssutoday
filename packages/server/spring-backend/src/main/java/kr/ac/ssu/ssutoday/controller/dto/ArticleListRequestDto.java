@@ -10,6 +10,8 @@ import jakarta.validation.constraints.*;
 import kr.ac.ssu.ssutoday.service.dto.ArticleListParamDto;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ArticleListRequestDto {
     @NotNull(message = "page is null.")
@@ -24,9 +26,7 @@ public class ArticleListRequestDto {
     private String search;
 
     @NotNull(message = "provider is null.")
-    @Min(value = 0)
-    @Max(value = 31)
-    private Integer provider;
+    private List<@NotEmpty String> provider;
 
     @org.jetbrains.annotations.NotNull
     public ArticleListParamDto toArticleListParamDto(){

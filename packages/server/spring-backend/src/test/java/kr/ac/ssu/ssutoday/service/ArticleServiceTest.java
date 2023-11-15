@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 public class ArticleServiceTest {
     @Autowired
@@ -19,7 +21,7 @@ public class ArticleServiceTest {
     @Test
     public void getArticle(){
         ArticleListParamDto articleListParamDto = ArticleListParamDto.builder()
-                .provider(31)
+                .provider(List.of())
                 .search("")
                 .orderBy("DESC")
                 .page(9)

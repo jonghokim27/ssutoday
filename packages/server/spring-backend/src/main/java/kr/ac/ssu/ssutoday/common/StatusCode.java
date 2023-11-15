@@ -281,13 +281,13 @@ public class StatusCode {
      * SSU4142
      */
     public final String SSU4142 = "SSU4142";
-    public final String SSU4142_MSG = "Already started to use";
+    public final String SSU4142_MSG = "Already finished using";
 
     /**
      * SSU4143
      */
     public final String SSU4143 = "SSU4143";
-    public final String SSU4143_MSG = "Already finished using";
+    public final String SSU4143_MSG = "Already started to use";
 
     //
     // ==================================================================
@@ -314,16 +314,110 @@ public class StatusCode {
     // Validate SSO Token (16)
 
     /**
-     * SSU2150
+     * SSU2160
      */
     public final String SSU2160 = "SSU2160";
     public final String SSU2160_MSG = "Validate SSO token success";
 
     /**
-     * SSU4150
+     * SSU4160
      */
     public final String SSU4160 = "SSU4160";
     public final String SSU4160_MSG = "Not an existing (or expired) SSO token";
+
+    //
+    // ==================================================================
+    // ==================================================================
+
+    // ==================================================================
+    // Get device option (17)
+
+    /**
+     * SSU2170
+     */
+    public final String SSU2170 = "SSU2170";
+    public final String SSU2170_MSG = "Get device option success";
+
+    /**
+     * SSU4170
+     */
+    public final String SSU4170 = "SSU4170";
+    public final String SSU4170_MSG = "Not an existing device";
+
+    //
+    // ==================================================================
+    // ==================================================================
+    // Update device option (18)
+
+    /**
+     * SSU2170
+     */
+    public final String SSU2180 = "SSU2180";
+    public final String SSU2180_MSG = "Update device option success";
+
+    /**
+     * SSU4170
+     */
+    public final String SSU4180 = "SSU4180";
+    public final String SSU4180_MSG = "Not an existing device";
+
+    //
+    // ==================================================================
+    // ==================================================================
+    // Update user xnApiToken (19)
+
+    /**
+     * SSU2190
+     */
+    public final String SSU2190 = "SSU2190";
+    public final String SSU2190_MSG = "Update user xnApiToken success";
+
+    //
+    // ==================================================================
+    // ==================================================================
+    // Upload verify photo (20)
+
+    /**
+     * SSU2200
+     */
+    public final String SSU2200 = "SSU2200";
+    public final String SSU2200_MSG = "Upload verify photo success";
+
+    /**
+     * SSU4200
+     */
+    public final String SSU4200 = "SSU4200";
+    public final String SSU4200_MSG = "Not an existing reservation";
+
+    /**
+     * SSU4201
+     */
+    public final String SSU4201 = "SSU4201";
+    public final String SSU4201_MSG = "Reserved date has passed";
+
+    /**
+     * SSU4202
+     */
+    public final String SSU4202 = "SSU4202";
+    public final String SSU4202_MSG = "Already finished using";
+
+    /**
+     * SSU4203
+     */
+    public final String SSU4203 = "SSU4203";
+    public final String SSU4203_MSG = "Not started using";
+
+    /**
+     * SSU4204
+     */
+    public final String SSU4204 = "SSU4204";
+    public final String SSU4204_MSG = "10 minutes passed since started using";
+
+    /**
+     * SSU5200
+     */
+    public final String SSU5200 = "SSU5200";
+    public final String SSU5200_MSG = "File upload failed";
 
     //
     // ==================================================================

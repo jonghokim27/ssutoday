@@ -175,10 +175,17 @@ public class AuthServiceImpl implements AuthService {
 
         }
 
+        if(usaintAuthReturnDto.getMajor().contains("전자정보공학부")){
+            usaintAuthReturnDto.setMajor("infocom");
+            return usaintAuthReturnDto;
+        }
+
         switch (usaintAuthReturnDto.getMajor()) {
             case "컴퓨터학부" -> usaintAuthReturnDto.setMajor("cse");
             case "소프트웨어학부" -> usaintAuthReturnDto.setMajor("sw");
             case "글로벌미디어학부" -> usaintAuthReturnDto.setMajor("media");
+            case "미디어경영학과" -> usaintAuthReturnDto.setMajor("mediamba");
+            case "AI융합학부" -> usaintAuthReturnDto.setMajor("aix");
             default -> {
                 log.debug("{} is not a supported major.", usaintAuthReturnDto.getMajor());
                 throw new UnsupportedMajorException();

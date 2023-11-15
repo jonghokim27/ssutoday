@@ -8,9 +8,11 @@ MYSQL_DB = os.getenv("MYSQL_DB")
 KAFKA_HOST = os.getenv("KAFKA_HOST")
 
 PROVIDER = {
-	"SSUCATCH": 16,
-	"STU": 8,
-	"CSE": 4,
-	"SW": 2,
-	"MEDIA": 1
+	"SSUCATCH": "ssucatch",
+	"STU": "stu",
+	"CSE": "cse",
+	"SW": "sw",
+	"MEDIA": "media",
+	"INFOCOM": "infocom",
+	"AIX": "aix"
 }

@@ -31,7 +31,7 @@ public class Room {
     private String name;
     @Basic
     @Column(name = "major", nullable = false)
-    private Integer major;
+    private Object major;
     @Basic
     @Column(name = "capacity", nullable = false)
     private Integer capacity;

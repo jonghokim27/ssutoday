@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<Room, String> {
-    @Query(value = "SELECT * FROM Room WHERE no = ?1 AND major & ?2 > 0", nativeQuery = true)
-    Optional<Room> findByIdAndMajor(String roomNo, Integer major);
+    @Query(value = "SELECT * FROM Room WHERE no = ?1 AND JSON_CONTAINS(major, ?2)", nativeQuery = true)
+    Optional<Room> findByIdAndMajor(String roomNo, String major);
 
-    @Query(value = "SELECT * FROM Room WHERE major & ?1 > 0", nativeQuery = true)
-    List<Room> findAllByMajor(Integer major);
+    @Query(value = "SELECT * FROM Room WHERE JSON_CONTAINS(major, ?1)", nativeQuery = true)
+    List<Room> findAllByMajor(String major);
 }

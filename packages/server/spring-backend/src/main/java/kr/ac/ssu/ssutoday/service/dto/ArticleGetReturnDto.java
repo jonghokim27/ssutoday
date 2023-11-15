@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @Builder
 public class ArticleGetReturnDto {
-    Article article;
+    private Article article;
 
     @NotNull
     public ArticleGetResponseDto toArticleGetResponseDto(){

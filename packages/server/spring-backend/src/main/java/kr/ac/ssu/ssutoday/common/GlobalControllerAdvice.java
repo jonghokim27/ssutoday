@@ -21,6 +21,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -84,6 +85,18 @@ public class GlobalControllerAdvice<T> implements ResponseBodyAdvice<T> {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<CommonResponse> HandlerMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
+        log.debug(e.getMessage(), e);
+
+        CommonResponse res = new CommonResponse(statusCode.SSU4000, null, statusCode.SSU4000_MSG);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Parameter missing -> SSU4000 (HTTP 400)
+     * MissingServletRequestParameterException
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<CommonResponse> HandlerMissingServletRequestParameterException(MissingServletRequestParameterException e, HttpServletRequest request) {
         log.debug(e.getMessage(), e);
 
         CommonResponse res = new CommonResponse(statusCode.SSU4000, null, statusCode.SSU4000_MSG);

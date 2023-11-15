@@ -37,6 +37,7 @@ public class StudentLoginParamDto {
                 .id(this.id)
                 .name(this.name)
                 .major(this.major)
+                .isAdmin(0)
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
     }

@@ -19,6 +19,10 @@ import java.util.Optional;
 
 public interface ReserveRepository extends JpaRepository<Reserve, Integer> {
     long countByDateAndRoomNoAndStartBlockLessThanEqualAndEndBlockGreaterThanEqualAndDeletedAtIsNull(Date date, String roomNo, Integer startBlock, Integer endBlock);
+    long countByStudentIdAndDateAndStartBlockLessThanEqualAndEndBlockGreaterThanEqualAndDeletedAtIsNull(Integer studentId, Date date, Integer startBlock, Integer endBlock);
+    long countByStudentIdAndDateAndEndBlockAndRoomNoAndDeletedAtIsNull(Integer studentId, Date date, Integer endBlock, String roomNo);
+    long countByStudentIdAndDateAndStartBlockAndRoomNoAndDeletedAtIsNull(Integer studentId, Date date, Integer startBlock, String roomNo);
+
     List<Reserve> findAllByStudentIdAndDateAndDeletedAtIsNull(Integer studentId, Date date);
     List<Reserve> findAllByRoomNoAndDateAndDeletedAtIsNull(String roomNo, Date date);
     @Query(value = "select * from Reserve " +

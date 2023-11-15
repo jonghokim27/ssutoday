@@ -16,7 +16,6 @@ import java.sql.Date;
 @Data
 public class RoomGetRequestDto {
     @NotEmpty(message = "roomNo is empty.")
-    @Pattern(regexp = "(2[a-c]|5a)", message = "Invalid roomNo.")
     private String roomNo;
 
     @NotEmpty(message = "date is empty.")
@@ -24,8 +23,9 @@ public class RoomGetRequestDto {
     private String date;
 
     @NotNull
-    public RoomReserveListParamDto toRoomReserveListParamDto(@NotNull Integer studentId){
+    public RoomReserveListParamDto toRoomReserveListParamDto(@NotNull Integer studentId, @NotNull Boolean isAdmin){
         return RoomReserveListParamDto.builder()
+                .isAdmin(isAdmin)
                 .studentId(studentId)
                 .roomNo(this.roomNo)
                 .date(Date.valueOf(this.date))

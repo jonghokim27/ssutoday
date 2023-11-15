@@ -6,6 +6,7 @@
 
 package kr.ac.ssu.ssutoday.service;
 
+import kr.ac.ssu.ssutoday.exception.FileUploadFailedException;
 import kr.ac.ssu.ssutoday.service.dto.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +60,16 @@ public interface ReserveService {
     ReserveCancelReturnDto reserveCancel(@NotNull ReserveCancelParamDto reserveCancelParamDto) throws Exception;
 
     /**
+     * Upload verify photo
+     * @param reserveVerifyPhotoUploadParamDto upload params
+     * @return upload result (ReserveVerifyPhotoUploadReturnDto)
+     * @throws Exception thrown when reserve request with idx and studentId does not exist
+     * @author jonghokim27
+     */
+    @NotNull
+    ReserveVerifyPhotoUploadReturnDto verifyPhotoUpload(@NotNull ReserveVerifyPhotoUploadParamDto reserveVerifyPhotoUploadParamDto) throws Exception;
+
+    /**
      * Process reservation
      * @param message reservation message
      * @author jonghokim27
@@ -70,4 +81,10 @@ public interface ReserveService {
      * @author jonghokim27
      */
     void reserveNotificationSend();
+
+    /**
+     * Send verify photo notification (scheduled job)
+     * @author jonghokim27
+     */
+    void verifyPhotoNotificationSend();
 }

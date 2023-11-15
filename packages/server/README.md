@@ -29,15 +29,19 @@ MYSQL_DB=
 # AUTH
 JWT_SECRET_KEY=
 CLIENT_KEY=
+
+# AWS
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 ```
 
-## Database DDL (Mysql 8)
+## Database DDL (Mysql 8.x)
 ```
-create table ssutoday.Article
+create table Article
 (
     idx       int auto_increment
         primary key,
-    provider  int                                not null,
+    provider  varchar(10)                        not null,
     articleNo varchar(200)                       not null,
     title     varchar(500)                       not null,
     content   mediumtext                         null,
@@ -48,7 +52,7 @@ create table ssutoday.Article
         unique (idx)
 );
 
-create table ssutoday.Config
+create table Config
 (
     `key` varchar(100) not null
         primary key,
@@ -57,12 +61,12 @@ create table ssutoday.Config
         unique (`key`)
 );
 
-create table ssutoday.Room
+create table Room
 (
     no       varchar(10)  not null
         primary key,
     name     varchar(50)  not null,
-    major    int          not null,
+    major    json         not null,
     capacity int          not null,
     location varchar(50)  not null,
     tags     varchar(50)  not null,
@@ -72,7 +76,7 @@ create table ssutoday.Room
         unique (no)
 );
 
-create table ssutoday.SSOClient
+create table SSOClient
 (
     id          varchar(20)  not null
         primary key,
@@ -82,19 +86,21 @@ create table ssutoday.SSOClient
         unique (id)
 );
 
-create table ssutoday.Student
+create table Student
 (
-    id        int                                not null
+    id         int                                not null
         primary key,
-    name      varchar(100)                       not null,
-    major     varchar(10)                        not null,
-    createdAt datetime default CURRENT_TIMESTAMP not null,
-    updatedAt datetime                           null,
+    name       varchar(100)                       not null,
+    major      varchar(10)                        not null,
+    xnApiToken varchar(500)                       null,
+    isAdmin    int                                not null,
+    createdAt  datetime default CURRENT_TIMESTAMP not null,
+    updatedAt  datetime                           null,
     constraint id
         unique (id)
 );
 
-create table ssutoday.Device
+create table Device
 (
     idx       int auto_increment
         primary key,
@@ -102,16 +108,19 @@ create table ssutoday.Device
     osType    varchar(10)                        not null,
     uuid      varchar(200)                       not null,
     pushToken varchar(200)                       not null,
+    notice    int                                not null,
+    reserve   int                                not null,
+    lms       int                                not null,
     createdAt datetime default CURRENT_TIMESTAMP not null,
     updatedAt datetime                           null,
     constraint idx
         unique (idx),
     constraint Device_Student_id_fk
-        foreign key (StudentId) references ssutoday.Student (id)
+        foreign key (StudentId) references Student (id)
             on update cascade
 );
 
-create table ssutoday.Reserve
+create table Reserve
 (
     idx        int auto_increment
         primary key,
@@ -125,13 +134,13 @@ create table ssutoday.Reserve
     constraint idx
         unique (idx),
     constraint Reservation_Student_id_fk
-        foreign key (StudentId) references ssutoday.Student (id)
+        foreign key (StudentId) references Student (id)
             on update cascade,
     constraint Reserve_Room_no_fk
-        foreign key (roomNo) references ssutoday.Room (no)
+        foreign key (roomNo) references Room (no)
 );
 
-create table ssutoday.ReserveRequest
+create table ReserveRequest
 (
     idx        int auto_increment
         primary key,
@@ -146,12 +155,25 @@ create table ssutoday.ReserveRequest
     constraint idx
         unique (idx),
     constraint ReserveRequest_Room_no_fk
-        foreign key (roomNo) references ssutoday.Room (no),
+        foreign key (roomNo) references Room (no),
     constraint ReserveRequest_Student_id_fk
-        foreign key (StudentId) references ssutoday.Student (id)
+        foreign key (StudentId) references Student (id)
 );
 
-create table ssutoday.Version
+create table VerifyPhoto
+(
+    idx        int auto_increment
+        primary key,
+    ReserveIdx int                                not null,
+    url        varchar(200)                       not null,
+    createdAt  datetime default CURRENT_TIMESTAMP not null,
+    constraint idx
+        unique (idx),
+    constraint VerifyPhoto_Reserve_idx_fk
+        foreign key (ReserveIdx) references Reserve (idx)
+);
+
+create table Version
 (
     idx             int         not null
         primary key,
@@ -162,6 +184,4 @@ create table ssutoday.Version
     constraint osType
         unique (osType)
 );
-
-
 ```

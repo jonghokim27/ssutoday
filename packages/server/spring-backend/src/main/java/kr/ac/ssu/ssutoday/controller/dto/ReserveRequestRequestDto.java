@@ -15,7 +15,6 @@ import java.sql.Date;
 @Data
 public class ReserveRequestRequestDto {
     @NotEmpty(message = "roomNo is empty.")
-    @Pattern(regexp = "(2[a-c]|5a)", message = "Invalid roomNo.")
     private String roomNo;
 
     @NotEmpty(message = "date is empty.")

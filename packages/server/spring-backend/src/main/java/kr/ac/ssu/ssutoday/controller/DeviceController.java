@@ -9,11 +9,10 @@ package kr.ac.ssu.ssutoday.controller;
 import jakarta.validation.Valid;
 import kr.ac.ssu.ssutoday.common.CommonResponse;
 import kr.ac.ssu.ssutoday.common.StatusCode;
-import kr.ac.ssu.ssutoday.controller.dto.DeviceCheckVersionRequestDto;
-import kr.ac.ssu.ssutoday.controller.dto.DeviceRegisterRequestDto;
-import kr.ac.ssu.ssutoday.controller.dto.DeviceUnregisterRequestDto;
+import kr.ac.ssu.ssutoday.controller.dto.*;
 import kr.ac.ssu.ssutoday.entity.Student;
 import kr.ac.ssu.ssutoday.service.DeviceService;
+import kr.ac.ssu.ssutoday.service.dto.DeviceGetOptionReturnDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +52,7 @@ public class DeviceController {
 
         deviceService.deviceRegister(deviceRegisterRequestDto.toDeviceRegisterParamDto(student));
 
-        return new CommonResponse(statusCode.SSU2040, student.toStudentProfileResponseDto(), statusCode.SSU2040_MSG);
+        return new CommonResponse(statusCode.SSU2040, null, statusCode.SSU2040_MSG);
     }
 
     /**
@@ -72,10 +71,10 @@ public class DeviceController {
 
         try {
             deviceService.deviceUnregister(deviceUnregisterRequestDto.toDeviceUnregisterParamDto(student));
-            return new CommonResponse(statusCode.SSU2050, student.toStudentProfileResponseDto(), statusCode.SSU2050_MSG);
+            return new CommonResponse(statusCode.SSU2050, null, statusCode.SSU2050_MSG);
         }
         catch (Exception e){
-            return new CommonResponse(statusCode.SSU4050, student.toStudentProfileResponseDto(), statusCode.SSU4050_MSG);
+            return new CommonResponse(statusCode.SSU4050, null, statusCode.SSU4050_MSG);
         }
     }
 
@@ -96,6 +95,49 @@ public class DeviceController {
             return new CommonResponse(statusCode.SSU2071, null, statusCode.SSU2071_MSG);
         } else {
             return new CommonResponse(statusCode.SSU2070, null, statusCode.SSU2070_MSG);
+        }
+    }
+
+    /**
+     * Get device option (17)
+     * /device/getOption
+     * @param deviceGetOptionRequestDto get option params
+     * @return get option result (DeviceGetOptionResponseDto)
+     */
+    @Nullable
+    @PostMapping("/getOption")
+    @ResponseBody
+    public CommonResponse getOption(@NotNull @Valid @RequestBody DeviceGetOptionRequestDto deviceGetOptionRequestDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Student student = (Student) authentication.getPrincipal();
+
+        try {
+            DeviceGetOptionReturnDto deviceGetOptionReturnDto = deviceService.deviceGetOption(deviceGetOptionRequestDto.toDeviceGetOptionParamDto(student));
+            return new CommonResponse(statusCode.SSU2170, deviceGetOptionReturnDto.toDeviceGetOptionResponseDto(), statusCode.SSU2170_MSG);
+        }
+        catch (Exception e){
+            return new CommonResponse(statusCode.SSU4170, null, statusCode.SSU4170_MSG);
+        }
+    }
+
+    /**
+     * Update device option (18)
+     * /device/updateOption
+     * @param deviceUpdateOptionRequestDto update option params
+     */
+    @Nullable
+    @PostMapping("/updateOption")
+    @ResponseBody
+    public CommonResponse updateOption(@NotNull @Valid @RequestBody DeviceUpdateOptionRequestDto deviceUpdateOptionRequestDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Student student = (Student) authentication.getPrincipal();
+
+        try {
+            deviceService.deviceUpdateOption(deviceUpdateOptionRequestDto.toDeviceUpdateOptionParamDto(student));
+            return new CommonResponse(statusCode.SSU2180, null, statusCode.SSU2180_MSG);
+        }
+        catch (Exception e){
+            return new CommonResponse(statusCode.SSU4180, null, statusCode.SSU4180_MSG);
         }
     }
 }

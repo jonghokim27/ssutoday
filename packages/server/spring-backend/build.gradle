@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'kr.ac.ssu'
-version = '2.1.0-BETA'
+version = '2.2.0-RELEASE'
 
 java {
 	sourceCompatibility = '17'
@@ -42,7 +42,7 @@ dependencies {
 	// javax.xml.bind
 	implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
 
-	implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.520'
+//	implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.520'
 	implementation 'org.jsoup:jsoup:1.16.1'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -50,8 +50,10 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 
 	testImplementation 'org.awaitility:awaitility:3.1.2'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}

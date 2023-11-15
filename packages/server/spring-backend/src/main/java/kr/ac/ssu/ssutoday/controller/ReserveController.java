@@ -6,15 +6,14 @@
 
 package kr.ac.ssu.ssutoday.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.ac.ssu.ssutoday.common.CommonResponse;
 import kr.ac.ssu.ssutoday.common.StatusCode;
-import kr.ac.ssu.ssutoday.controller.dto.ReserveCancelRequestDto;
-import kr.ac.ssu.ssutoday.controller.dto.ReserveListRequestDto;
-import kr.ac.ssu.ssutoday.controller.dto.ReserveRequestRequestDto;
-import kr.ac.ssu.ssutoday.controller.dto.ReserveStatusRequestDto;
+import kr.ac.ssu.ssutoday.controller.dto.*;
 import kr.ac.ssu.ssutoday.entity.Student;
 import kr.ac.ssu.ssutoday.exception.ConfigDisabledException;
+import kr.ac.ssu.ssutoday.exception.FileUploadFailedException;
 import kr.ac.ssu.ssutoday.service.ReserveService;
 import kr.ac.ssu.ssutoday.service.RoomService;
 import kr.ac.ssu.ssutoday.service.dto.*;
@@ -26,6 +25,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Iterator;
 
 @Controller
 @RequestMapping("/reserve")
@@ -57,13 +58,14 @@ public class ReserveController {
             return new CommonResponse(statusCode.SSU4000, null, statusCode.SSU4000_MSG);
         }
 
-        if(reserveRequestRequestDto.getEndBlock() - reserveRequestRequestDto.getStartBlock() > 1){
+        if(reserveRequestRequestDto.getEndBlock() - reserveRequestRequestDto.getStartBlock() > 3){
             return new CommonResponse(statusCode.SSU4000, null, statusCode.SSU4000_MSG);
         }
 
         RoomGetParamDto roomGetParamDto = RoomGetParamDto.builder()
                 .roomNo(reserveRequestRequestDto.getRoomNo())
                 .major(student.getMajor())
+                .isAdmin(student.getIsAdmin() == 1)
                 .build();
 
         RoomGetReturnDto roomGetReturnDto  = roomService.roomGet(roomGetParamDto);
@@ -151,6 +153,42 @@ public class ReserveController {
 
         } catch(Exception e){
             return new CommonResponse(statusCode.SSU4140, null, statusCode.SSU4140_MSG);
+        }
+
+    }
+
+    /**
+     * Upload verify photo (20)
+     * /reserve/verifyPhoto/upload
+     * @param reserveVerifyPhotoUploadRequestDto upload params
+     * @author jonghokim27
+     */
+    @Nullable
+    @PostMapping("/verifyPhoto/upload")
+    @ResponseBody
+    public CommonResponse uploadVerifyPhoto(@NotNull @Valid ReserveVerifyPhotoUploadRequestDto reserveVerifyPhotoUploadRequestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Student student = (Student) authentication.getPrincipal();
+
+        try{
+            ReserveVerifyPhotoUploadReturnDto reserveVerifyPhotoUploadReturnDto =
+                    reserveService.verifyPhotoUpload(reserveVerifyPhotoUploadRequestDto.toReserveVerifyPhotoUploadParamDto(student.getId()));
+
+            if(reserveVerifyPhotoUploadReturnDto.getStatus() == 2){
+                return new CommonResponse(statusCode.SSU4201, null, statusCode.SSU4201_MSG);
+            } else if(reserveVerifyPhotoUploadReturnDto.getStatus() == 3){
+                return new CommonResponse(statusCode.SSU4202, null, statusCode.SSU4202_MSG);
+            } else if(reserveVerifyPhotoUploadReturnDto.getStatus() == 4){
+                return new CommonResponse(statusCode.SSU4203, null, statusCode.SSU4203_MSG);
+            } else if(reserveVerifyPhotoUploadReturnDto.getStatus() == 5){
+                return new CommonResponse(statusCode.SSU4204, null, statusCode.SSU4204_MSG);
+            }
+
+            return new CommonResponse(statusCode.SSU2200, null, statusCode.SSU2200_MSG);
+        } catch(FileUploadFailedException e){
+            return new CommonResponse(statusCode.SSU5200, null, statusCode.SSU5200_MSG);
+        } catch(Exception e){
+            return new CommonResponse(statusCode.SSU4200, null, statusCode.SSU4200_MSG);
         }
 
     }
